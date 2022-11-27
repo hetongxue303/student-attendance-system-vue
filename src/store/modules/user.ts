@@ -3,7 +3,7 @@ import { UserStore } from '../../types/pinia'
 import { getToken, removeToken, removeTokenTime } from '../../utils/auth'
 import { local, session } from '../../utils/storage'
 
-const userStore = defineStore('user', {
+export const useUserStore = defineStore('user', {
   state: (): UserStore => {
     return {
       authorization: getToken() || '',
@@ -40,7 +40,3 @@ const userStore = defineStore('user', {
     storage: localStorage
   }
 })
-
-const useUser = userStore()
-
-export default useUser

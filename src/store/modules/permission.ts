@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { permissionStore } from '../../types/pinia'
 
-const permissionStore = defineStore('permission', {
+export const usePermissionStore = defineStore('permission', {
   state: (): permissionStore => {
     return {
       isAdmin: false,
@@ -20,7 +20,3 @@ const permissionStore = defineStore('permission', {
     storage: localStorage
   }
 })
-
-const usePermission = permissionStore()
-
-export default usePermission

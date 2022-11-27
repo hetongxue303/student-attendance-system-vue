@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { settingsStore } from '../../types/pinia'
 
-const settingsStore = defineStore('settings', {
+export const useSettingsStore = defineStore('settings', {
   state: (): settingsStore => {
     return {}
   },
@@ -12,7 +12,3 @@ const settingsStore = defineStore('settings', {
     storage: localStorage
   }
 })
-
-const useSettings = settingsStore()
-
-export default useSettings

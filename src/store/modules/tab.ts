@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { TabStore } from '../../types/pinia'
 
-const tabStore = defineStore('tab', {
+export const useTabStore = defineStore('tab', {
   state: (): TabStore => {
     return {
       tabs: [{ title: '首页', path: '/dashboard' }],
@@ -39,7 +39,3 @@ const tabStore = defineStore('tab', {
     storage: localStorage
   }
 })
-
-const useTab = tabStore()
-
-export default useTab

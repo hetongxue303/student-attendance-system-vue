@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { appStore } from '../../types/pinia'
 
-const appStore = defineStore('app', {
+export const useAppStore = defineStore('app', {
   state: (): appStore => {
     return {
       collapse: false
@@ -20,7 +20,3 @@ const appStore = defineStore('app', {
     storage: localStorage
   }
 })
-
-const useApp = appStore()
-
-export default useApp

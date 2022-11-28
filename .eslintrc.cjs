@@ -74,6 +74,7 @@ module.exports = {
     'no-use-before-define': 0,
     'vue/require-component-is': 0,
     'vue/multi-word-component-names': 0,
-    'vue/no-parsing-error': 0
+    'vue/no-parsing-error': 0,
+    'consistent-return': 0
   }
 }

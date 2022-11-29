@@ -7,12 +7,6 @@ import eslintPlugin from 'vite-plugin-eslint'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
 export default defineConfig({
-  mode: 'development',
-  base: './',
-  publicDir: 'public',
-  logLevel: 'info',
-  envDir: 'root',
-  envPrefix: 'VITE_',
   plugins: [
     vue(),
     WindiCSS(),
@@ -50,7 +44,7 @@ export default defineConfig({
     hmr: true,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/api/, '')
       }

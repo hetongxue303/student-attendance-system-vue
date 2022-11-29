@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElNotification } from 'element-plus'
 
 axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_BASIC_HTTP,
   timeout: 10 * 1000,
   withCredentials: true,
   timeoutErrorMessage: 'timeout',

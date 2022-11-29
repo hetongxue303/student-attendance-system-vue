@@ -38,16 +38,16 @@ const loginHandler = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
-      const { data } = await login({
+      const { data, status } = await login({
         username: formData.username,
         password: encryptMD5(formData.password),
         code: formData.code,
         rememberMe: formData.rememberMe
       })
-      switch (data.code as number) {
+      switch (status) {
         case 200:
-          setToken(data.data.token)
-          setTokenTime(new Date().getTime() + data.data.expireTime)
+          setToken(data.access_token)
+          setTokenTime(new Date().getTime() + data.expire_time)
           ElMessage.success('登陆成功')
           await router.push(pageData.redirect || '/')
           break

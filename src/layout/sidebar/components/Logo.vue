@@ -1,7 +1,7 @@
 <template>
-  <div v-if="!collapse" class="logo_content">
+  <div class="logo_content">
     <img src="https://eladmin.vip/demo/static/img/logo.381d6a3e.png" alt="" />
-    <span v-show="false">Class-Admin</span>
+    <div v-show="!collapse">Class-Admin</div>
   </div>
 </template>
 
@@ -24,8 +24,7 @@ defineProps({
     height: 40px;
     width: 40px;
   }
-
-  span {
+  div {
     color: white;
     font-size: 18px;
     margin-left: 5px;

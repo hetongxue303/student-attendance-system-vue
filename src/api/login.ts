@@ -1,8 +1,7 @@
 import * as qs from 'qs'
 import axios from '../utils/request'
-import { settings } from '../settings'
 
-const baseApi = settings.BASE_API
+const baseApi = import.meta.env.VITE_BASIC_API
 
 // 获取验证码
 export const getCaptcha = () => {
@@ -16,7 +15,7 @@ export const getCaptcha = () => {
 export const login = (data: any) => {
   return axios({
     method: 'POST',
-    url: `${baseApi}/auth/login`,
+    url: `${baseApi}/login`,
     data: qs.stringify(data),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'

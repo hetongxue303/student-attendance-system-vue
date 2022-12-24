@@ -7,11 +7,13 @@ import { setToken, setTokenTime } from '../utils/auth'
 import { useRoute, useRouter } from 'vue-router'
 import { ILogin } from '../types/entity'
 import { useCookies } from '@vueuse/integrations/useCookies'
-import { encrypt } from '../utils/jsencrypt'
+import { decrypt, encrypt } from '../utils/jsencrypt'
+import { useUserStore } from '../store/modules/user'
 
 const route = useRoute()
 const router = useRouter()
 const cookie = useCookies()
+const userStore = useUserStore()
 
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
@@ -67,6 +69,7 @@ const loginHandler = async (formEl: FormInstance | undefined) => {
       if (data.code === 200 && status === 200) {
         setToken(data.access_token)
         setTokenTime(new Date().getTime() + data.expire_time)
+        userStore.setUserInfo(data)
         ElMessage.success('登陆成功')
         await router.push(pageData.redirect || '/')
       } else {
@@ -92,7 +95,17 @@ watch(
   () => (pageData.redirect = route.query && (route.query.redirect as string)),
   { immediate: true }
 )
-onMounted(() => refreshCaptcha())
+const getCookie = async () => {
+  formData.username = cookie.get('username')
+  formData.password = cookie.get('password')
+    ? decrypt(cookie.get('password'))
+    : ''
+  formData.rememberMe = Boolean(cookie.get('rememberMe'))
+}
+onMounted(() => {
+  refreshCaptcha()
+  getCookie()
+})
 </script>
 
 <template>

@@ -18,9 +18,9 @@ export type TabStore = {
 }
 
 export type UserStore = {
-  authorization: string
+  token: string
   username: string
   avatar: string
   roles: string[]
-  permissions: string[]
+  isAdmin: boolean
 }

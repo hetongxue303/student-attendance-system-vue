@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElNotification } from 'element-plus'
+import { getToken } from './auth'
 
 axios.create({
   baseURL: import.meta.env.VITE_BASIC_HTTP,
@@ -13,6 +14,9 @@ axios.create({
 
 axios.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
+    if (getToken() && config.headers) {
+      config.headers.access_token = getToken()
+    }
     return config
   },
   (error: any) => {
@@ -26,13 +30,14 @@ axios.interceptors.response.use(
     return response
   },
   (error: any) => {
+    console.log(error)
     let { message } = error
     if (message === 'Network Error') {
       message = '连接异常'
     } else if (message.includes('timeout')) {
       message = '请求超时'
-    } else if (message.includes('Request failed with status code')) {
-      message = '请求异常'
+    } else if (message === 'Request failed with status code 401') {
+      message = '凭证过期'
     }
     ElNotification.error(message)
     return Promise.reject(error)

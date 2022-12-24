@@ -11,7 +11,6 @@ export const getCaptcha = () => {
   })
 }
 
-// 登录处理
 export const login = (data: any) => {
   return axios({
     method: 'POST',
@@ -23,26 +22,23 @@ export const login = (data: any) => {
   })
 }
 
-// 注销处理
 export const logout = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/auth/logout`
+    url: `${baseApi}/logout`
   })
 }
-
-// 获取用户信息
-export const getUserInfo = () => {
+export const getAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/user/getUserInfo`
+    url: `${baseApi}/menu/getAll`
   })
 }
 
-// 刷新token
-export const refreshToken = () => {
+export const getCenterInfo = (username: string) => {
   return axios({
-    method: 'POST',
-    url: `${baseApi}/user/refreshToken`
+    method: 'GET',
+    url: `${baseApi}/user/center`,
+    params: { username }
   })
 }

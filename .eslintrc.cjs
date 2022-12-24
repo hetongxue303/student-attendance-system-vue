@@ -75,6 +75,8 @@ module.exports = {
     'vue/require-component-is': 0,
     'vue/multi-word-component-names': 0,
     'vue/no-parsing-error': 0,
-    'consistent-return': 0
+    'vue/attributes-order': 0,
+    'consistent-return': 0,
+    camelcase: 'off'
   }
 }

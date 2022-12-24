@@ -12,7 +12,7 @@
       active-text-color="#409eff"
       background-color="#304156"
     >
-      <menu-item :data="menus" />
+      <menu-item :data="menuList" />
     </el-menu>
   </el-scrollbar>
 </template>
@@ -22,14 +22,13 @@ import Logo from './components/Logo.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import MenuItem from './components/MenuItem.vue'
-import { constMenu } from '../data/constMenu'
 import { usePermissionStore } from '../../store/modules/permission'
+import { menus } from '../data/menus'
 
 const route = useRoute()
 const permissionStore = usePermissionStore()
 
-const menus: Array<any> = constMenu
-permissionStore.getMenus.forEach((menu) => menus.push(menu))
+const menuList: Array<any> = menus
 
 defineProps({
   isCollapse: { type: Boolean, required: true, default: false }
@@ -50,13 +49,16 @@ const activeValue = computed((): string => {
     width: 200px;
   }
 }
+
 .el-scrollbar {
   height: calc(100% - 50px);
   background-color: #304156;
 }
+
 .scrollbar-wrapper {
   overflow-x: hidden !important;
 }
+
 .horizontal-collapse-transition {
   transition: 0.25s width ease-in-out, 0.25s padding-left ease-in-out,
     0.25s padding-right ease-in-out;

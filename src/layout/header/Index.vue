@@ -18,7 +18,7 @@
 import Collapse from './components/Collapse.vue'
 import FullScreen from './components/FullScreen.vue'
 import Center from './components/Center.vue'
-// import Breadcrumb from '../../components/Breadcrumb/Index.vue'
+// import Breadcrumb from '../../components/Breadcrumb/index.vue'
 </script>
 
 <style scoped lang="scss">

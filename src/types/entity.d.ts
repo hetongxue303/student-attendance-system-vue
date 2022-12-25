@@ -34,6 +34,44 @@ export interface Major {
   update_time?: Date
 }
 
+/**
+ * 课程属性
+ */
+export interface Course {
+  course_id?: number
+  teacher_id?: number
+  teacher?: User
+  course_name?: string
+  count?: number
+  choice?: number
+  is_delete?: boolean
+  description?: string
+  create_time?: Date
+  update_time?: Date
+}
+
+export interface User {
+  user_id?: number
+  username?: string
+  password?: string
+  real_name?: string
+  avatar?: string
+  gender?: number
+  email?: string
+  phone?: number
+  role?: number
+  is_admin?: boolean
+  is_enable?: boolean
+  is_delete?: boolean
+  description?: string
+  create_time?: Date
+  update_time?: Date
+}
+
 export interface QueryCollege extends College, Page {}
 
 export interface QueryMajor extends Major, Page {}
+
+export interface QueryCourse extends Course, Page {}
+
+export interface QueryUser extends User, Page {}

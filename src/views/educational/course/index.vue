@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Pagination from '../../components/Pagination/Index.vue'
+import Pagination from '../../../components/Pagination/Index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
-import { Major, QueryMajor } from '../../types/entity'
+import { Course, QueryCourse, User } from '../../../types/entity'
 import {
   ElMessage,
   ElMessageBox,
@@ -12,37 +12,67 @@ import {
   FormInstance,
   FormRules
 } from 'element-plus'
-import { addMajor, delMajor, getMajorPage, updateMajor } from '../../api/major'
+import {
+  addCourse,
+  delCourse,
+  getCoursePage,
+  updateCourse
+} from '../../../api/course'
+import { getUserAll } from '../../../api/user'
 
 // 初始化相关
-const tableData = ref<Major[]>([])
+const tableData = ref<Course[]>([])
 const tableLoading = ref<boolean>(false)
-const getMajorListPage = async () => {
+const getCourseListPage = async () => {
   tableLoading.value = true
   setTimeout(async () => {
-    const { data } = await getMajorPage(query)
+    const { data } = await getCoursePage(query)
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
   }, Math.floor(Math.random() * (500 - 10)) + 10)
 }
-onMounted(() => getMajorListPage())
+onMounted(() => getCourseListPage())
 
 // 表单检验
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  major_name: [
+  course_name: [
     {
       required: true,
       type: 'string',
-      message: '学院名称不能为空',
+      message: '课程名称不能为空',
+      trigger: 'blur'
+    }
+  ],
+  count: [
+    {
+      required: true,
+      type: 'number',
+      message: '课程人数不能为空',
+      trigger: 'blur'
+    },
+    {
+      required: true,
+      type: 'number',
+      min: 5,
+      max: 200,
+      message: '课程人数介于5~200人',
+      trigger: 'blur'
+    }
+  ],
+  teacher_id: [
+    {
+      required: true,
+      type: 'number',
+      message: '请选择任课教师',
       trigger: 'blur'
     }
   ]
 })
 
 // 查询属性
-const query: QueryMajor = reactive({
+const query: QueryCourse = reactive({
   currentPage: 1,
   pageSize: 10
 })
@@ -56,21 +86,21 @@ const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
 
 // 处理搜索
 const handleSearch = () => {
-  if (!query.major_name) {
+  if (!query.course_name) {
     ElMessage.info('请输入搜索内容...')
     return
   }
-  getMajorListPage()
+  getCourseListPage()
 }
 
 // 重置搜索
-const resetSearch = () => (query.major_name = undefined)
+const resetSearch = () => (query.course_name = undefined)
 
 // 监听查询属性
 watch(
   () => query,
   async () => {
-    await getMajorListPage()
+    await getCourseListPage()
   },
   { deep: true }
 )
@@ -82,16 +112,16 @@ const disabled = reactive({
   export: false
 })
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const multipleSelection = ref<Major[]>([])
-const handleSelectionChange = (majors: Major[]) =>
-  (multipleSelection.value = majors)
+const multipleSelection = ref<Course[]>([])
+const handleSelectionChange = (courses: Course[]) =>
+  (multipleSelection.value = courses)
 
 // 单个删除
-const handleDelete = async ({ major_id }: Major) => {
-  if (major_id) {
-    const { data } = await delMajor(major_id)
+const handleDelete = async ({ course_id }: Course) => {
+  if (course_id) {
+    const { data } = await delCourse(course_id)
     if (data.code === 200) {
-      await getMajorListPage()
+      await getCourseListPage()
       ElNotification.success('删除成功')
       return
     }
@@ -142,7 +172,7 @@ watch(
 )
 
 /* 增加 编辑相关 */
-const dialogForm = ref<Major>({})
+const dialogForm = ref<Course>({})
 const dialog = reactive({
   show: false,
   title: '',
@@ -150,21 +180,22 @@ const dialog = reactive({
 })
 
 // 设置dialog
-const setDialog = async (operate: string, row?: Major) => {
+const setDialog = async (operate: string, row?: Course) => {
   if (operate === 'insert') {
-    dialog.title = '新增学院'
+    dialog.title = '新增课程'
     multipleSelection.value = []
   }
   if (operate === 'update') {
     if (row) {
       dialogForm.value = cloneDeep(row)
     } else {
-      dialogForm.value = cloneDeep(multipleSelection.value[0] as Major)
+      dialogForm.value = cloneDeep(multipleSelection.value[0] as Course)
     }
-    dialog.title = '编辑学院'
+    dialog.title = '编辑课程'
   }
   dialog.show = true
   dialog.operate = operate
+  getSelectUserList(2)
 }
 
 // 处理dialog操作
@@ -173,9 +204,9 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid) => {
     if (valid) {
       if (dialog.operate === 'insert') {
-        const { data } = await addMajor(dialogForm.value)
+        const { data } = await addCourse(dialogForm.value)
         if (data.code === 200) {
-          await getMajorListPage()
+          await getCourseListPage()
           dialog.show = false
           ElNotification.success('添加成功')
           return
@@ -183,9 +214,9 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
         ElNotification.error('添加失败,请重试！')
       }
       if (dialog.operate === 'update') {
-        const { data } = await updateMajor(dialogForm.value)
+        const { data } = await updateCourse(dialogForm.value)
         if (data.code === 200) {
-          await getMajorListPage()
+          await getCourseListPage()
           dialog.show = false
           ElNotification.success('更新成功')
           return
@@ -204,6 +235,12 @@ watch(
   },
   { deep: true }
 )
+
+// 下拉框数据
+const teachers = ref<User[]>([])
+const getSelectUserList = (role: number) => {
+  getUserAll(role).then(({ data }) => (teachers.value = cloneDeep(data.data)))
+}
 </script>
 
 <template>
@@ -212,9 +249,9 @@ watch(
     <el-row :gutter="20" class="search-box">
       <el-col :span="4">
         <el-input
-          v-model="query.major_name"
+          v-model="query.course_name"
           type="text"
-          placeholder="学院名称..."
+          placeholder="课程名称..."
         />
       </el-col>
       <el-button icon="Search" type="success" @click="handleSearch">
@@ -264,23 +301,44 @@ watch(
     v-loading="tableLoading"
   >
     <el-table-column type="selection" width="50" align="center" />
-    <el-table-column prop="major_name" label="专业名称" width="auto" />
-    <el-table-column prop="description" label="专业描述" width="auto" />
+    <el-table-column prop="course_name" label="专业名称" width="auto" />
+    <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
+    <el-table-column label="已选" width="auto" align="center">
+      <template #default="{ row }">
+        <el-tag type="success">{{ row.choice }}人</el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column label="剩余" v width="auto">
+      <template #default="{ row }">
+        <el-tag v-if="row.count === row.choice" effect="dark" type="warning">
+          已满
+        </el-tag>
+        <el-tag v-else effect="dark" type="success">
+          {{ row.count - row.choice }}人
+        </el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column label="总人数" width="auto" align="center">
+      <template #default="{ row }">
+        <el-tag type="info" effect="dark">{{ row.count }}人</el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column prop="description" label="课程描述" width="auto" />
     <el-table-column label="创建时间" align="center" width="180">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
     <el-table-column label="操作" align="center" width="200">
-      <template #default="scope">
+      <template #default="{ row }">
         <el-button
           icon="EditPen"
           type="primary"
-          @click="setDialog('update', scope.row)"
+          @click="setDialog('update', row)"
         />
         <el-popconfirm
           title="确定删除本条数据吗？"
-          @confirm="handleDelete(scope.row)"
+          @confirm="handleDelete(row)"
         >
           <template #reference>
             <el-button type="danger" icon="Delete" />
@@ -315,24 +373,52 @@ watch(
     >
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="专业名称" prop="major_name">
+          <el-form-item label="课程名称" prop="course_name">
             <el-input
-              v-model="dialogForm.major_name"
+              v-model="dialogForm.course_name"
               type="text"
-              placeholder="专业名称"
+              placeholder="课程名称"
             />
+          </el-form-item>
+          <el-form-item label="任课老师" prop="teacher_id">
+            <el-select
+              style="width: 100%"
+              v-model="dialogForm.teacher_id"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="(item, index) in teachers"
+                :key="index"
+                :label="item.real_name"
+                :value="item.user_id"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="课程人数" prop="count">
+            <template #default="{ row }">
+              <el-input-number
+                v-model="dialogForm.count"
+                controls-position="right"
+                :min="5"
+                :max="200"
+                style="width: 75%"
+              >
+                {{ row.count }}
+              </el-input-number>
+              <span style="color: #98a1a6; margin-left: 20px">介于5~200人</span>
+            </template>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="专业描述" prop="description">
+          <el-form-item label="课程描述" prop="description">
             <el-input
               v-model="dialogForm.description"
               type="textarea"
               :rows="5"
               resize="none"
-              placeholder="专业描述(默认：空)"
+              placeholder="课程描述(默认：空)"
             />
           </el-form-item>
         </el-col>

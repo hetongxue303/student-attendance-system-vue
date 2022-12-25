@@ -125,6 +125,7 @@ onMounted(() => {
               v-model="formData.username"
               prefix-icon="user"
               placeholder="账号"
+              size="default"
             />
           </el-form-item>
           <el-form-item prop="password">
@@ -134,12 +135,14 @@ onMounted(() => {
               show-password
               @keyup.enter="loginHandler(ruleFormRef)"
               prefix-icon="lock"
+              size="default"
             />
           </el-form-item>
           <el-form-item prop="code">
             <el-row :gutter="10" class="w-250px">
               <el-col :span="14" class="mr-3">
                 <el-input
+                  size="default"
                   v-model="formData.code"
                   placeholder="验证码"
                   @keyup.enter="loginHandler(ruleFormRef)"
@@ -157,10 +160,13 @@ onMounted(() => {
             </el-row>
           </el-form-item>
           <el-form-item>
-            <el-checkbox v-model="formData.rememberMe">记住我</el-checkbox>
+            <el-checkbox size="default" v-model="formData.rememberMe">
+              记住我
+            </el-checkbox>
           </el-form-item>
           <el-form-item>
             <el-button
+              size="default"
               type="primary"
               :loading="pageData.loading"
               @keyup.enter="loginHandler(ruleFormRef)"

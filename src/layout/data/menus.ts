@@ -20,5 +20,17 @@ export const menus: Array<any> = [
         path: '/school/major'
       }
     ]
+  },
+  {
+    name: '教务管理',
+    icon: 'user',
+    path: '/educational',
+    children: [
+      {
+        name: '课程管理',
+        icon: 'course',
+        path: '/educational/course'
+      }
+    ]
   }
 ]

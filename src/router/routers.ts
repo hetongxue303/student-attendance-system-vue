@@ -59,7 +59,7 @@ export const routes: RouteRecordRaw[] = [
           title: '学院管理',
           cache: false
         },
-        component: () => import('@views/college/index.vue')
+        component: () => import('@views/school/college/index.vue')
       },
       {
         name: 'major',
@@ -68,7 +68,23 @@ export const routes: RouteRecordRaw[] = [
           title: '专业管理',
           cache: false
         },
-        component: () => import('@views/major/index.vue')
+        component: () => import('@views/school/major/index.vue')
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: Layout,
+    meta: { cache: false },
+    children: [
+      {
+        name: 'course',
+        path: '/educational/course',
+        meta: {
+          title: '课程管理',
+          cache: false
+        },
+        component: () => import('@views/educational/course/index.vue')
       }
     ]
   }

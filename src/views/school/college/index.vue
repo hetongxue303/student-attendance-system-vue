@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Pagination from '../../components/Pagination/Index.vue'
-import { College, QueryCollege } from '../../types/entity'
+import Pagination from '../../../components/Pagination/Index.vue'
+import { College, QueryCollege } from '../../../types/entity'
 import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
@@ -9,7 +9,7 @@ import {
   delCollege,
   getCollegePage,
   updateCollege
-} from '../../api/college'
+} from '../../../api/college'
 import {
   ElMessage,
   ElMessageBox,

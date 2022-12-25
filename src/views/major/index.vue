@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import Pagination from '../../components/Pagination/Index.vue'
-import { College, QueryCollege } from '../../types/entity'
 import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
-import {
-  addCollege,
-  delCollege,
-  getCollegePage,
-  updateCollege
-} from '../../api/college'
+import { Major, QueryMajor } from '../../types/entity'
 import {
   ElMessage,
   ElMessageBox,
@@ -18,25 +12,26 @@ import {
   FormInstance,
   FormRules
 } from 'element-plus'
+import { addMajor, delMajor, getMajorPage, updateMajor } from '../../api/major'
 
 // 初始化相关
-const tableData = ref<College[]>([])
+const tableData = ref<Major[]>([])
 const tableLoading = ref<boolean>(false)
-const getCollegeListPage = async () => {
+const getMajorListPage = async () => {
   tableLoading.value = true
   setTimeout(async () => {
-    const { data } = await getCollegePage(query)
+    const { data } = await getMajorPage(query)
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
   }, Math.floor(Math.random() * (500 - 10)) + 10)
 }
-onMounted(() => getCollegeListPage())
+onMounted(() => getMajorListPage())
 
 // 表单检验
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  college_name: [
+  major_name: [
     {
       required: true,
       type: 'string',
@@ -47,7 +42,7 @@ const rules = reactive<FormRules>({
 })
 
 // 查询属性
-const query: QueryCollege = reactive({
+const query: QueryMajor = reactive({
   currentPage: 1,
   pageSize: 10
 })
@@ -61,21 +56,21 @@ const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
 
 // 处理搜索
 const handleSearch = () => {
-  if (!query.college_name) {
+  if (!query.major_name) {
     ElMessage.info('请输入搜索内容...')
     return
   }
-  getCollegeListPage()
+  getMajorListPage()
 }
 
 // 重置搜索
-const resetSearch = () => (query.college_name = undefined)
+const resetSearch = () => (query.major_name = undefined)
 
 // 监听查询属性
 watch(
   () => query,
   async () => {
-    await getCollegeListPage()
+    await getMajorListPage()
   },
   { deep: true }
 )
@@ -87,16 +82,16 @@ const disabled = reactive({
   export: false
 })
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const multipleSelection = ref<College[]>([])
-const handleSelectionChange = (colleges: College[]) =>
-  (multipleSelection.value = colleges)
+const multipleSelection = ref<Major[]>([])
+const handleSelectionChange = (majors: Major[]) =>
+  (multipleSelection.value = majors)
 
 // 单个删除
-const handleDelete = async ({ college_id }: College) => {
-  if (college_id) {
-    const { data } = await delCollege(college_id)
+const handleDelete = async ({ major_id }: Major) => {
+  if (major_id) {
+    const { data } = await delMajor(major_id)
     if (data.code === 200) {
-      await getCollegeListPage()
+      await getMajorListPage()
       ElNotification.success('删除成功')
       return
     }
@@ -147,7 +142,7 @@ watch(
 )
 
 /* 增加 编辑相关 */
-const dialogForm = ref<College>({})
+const dialogForm = ref<Major>({})
 const dialog = reactive({
   show: false,
   title: '',
@@ -155,7 +150,7 @@ const dialog = reactive({
 })
 
 // 设置dialog
-const setDialog = async (operate: string, row?: College) => {
+const setDialog = async (operate: string, row?: Major) => {
   if (operate === 'insert') {
     dialog.title = '新增学院'
     multipleSelection.value = []
@@ -164,7 +159,7 @@ const setDialog = async (operate: string, row?: College) => {
     if (row) {
       dialogForm.value = cloneDeep(row)
     } else {
-      dialogForm.value = cloneDeep(multipleSelection.value[0] as College)
+      dialogForm.value = cloneDeep(multipleSelection.value[0] as Major)
     }
     dialog.title = '编辑学院'
   }
@@ -178,9 +173,9 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid) => {
     if (valid) {
       if (dialog.operate === 'insert') {
-        const { data } = await addCollege(dialogForm.value)
+        const { data } = await addMajor(dialogForm.value)
         if (data.code === 200) {
-          await getCollegeListPage()
+          await getMajorListPage()
           dialog.show = false
           ElNotification.success('添加成功')
           return
@@ -188,9 +183,9 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
         ElNotification.error('添加失败,请重试！')
       }
       if (dialog.operate === 'update') {
-        const { data } = await updateCollege(dialogForm.value)
+        const { data } = await updateMajor(dialogForm.value)
         if (data.code === 200) {
-          await getCollegeListPage()
+          await getMajorListPage()
           dialog.show = false
           ElNotification.success('更新成功')
           return
@@ -217,7 +212,7 @@ watch(
     <el-row :gutter="20" class="search-box">
       <el-col :span="4">
         <el-input
-          v-model="query.college_name"
+          v-model="query.major_name"
           type="text"
           placeholder="学院名称..."
         />
@@ -269,8 +264,8 @@ watch(
     v-loading="tableLoading"
   >
     <el-table-column type="selection" width="50" align="center" />
-    <el-table-column prop="college_name" label="学院名称" width="auto" />
-    <el-table-column prop="description" label="学院描述" width="auto" />
+    <el-table-column prop="major_name" label="专业名称" width="auto" />
+    <el-table-column prop="description" label="专业描述" width="auto" />
     <el-table-column label="创建时间" align="center" width="180">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
@@ -320,24 +315,24 @@ watch(
     >
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="学院名称" prop="college_name">
+          <el-form-item label="专业名称" prop="major_name">
             <el-input
-              v-model="dialogForm.college_name"
+              v-model="dialogForm.major_name"
               type="text"
-              placeholder="学院名称"
+              placeholder="专业名称"
             />
           </el-form-item>
         </el-col>
       </el-row>
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="学院描述" prop="description">
+          <el-form-item label="专业描述" prop="description">
             <el-input
               v-model="dialogForm.description"
               type="textarea"
               :rows="5"
               resize="none"
-              placeholder="学院描述(默认：空)"
+              placeholder="专业描述(默认：空)"
             />
           </el-form-item>
         </el-col>

@@ -13,6 +13,11 @@ export const menus: Array<any> = [
         name: '学院管理',
         icon: 'college',
         path: '/school/college'
+      },
+      {
+        name: '专业管理',
+        icon: 'major',
+        path: '/school/major'
       }
     ]
   }

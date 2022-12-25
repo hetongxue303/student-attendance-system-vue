@@ -9,7 +9,7 @@ export const routes: RouteRecordRaw[] = [
       title: '用户登录',
       cache: false
     },
-    component: () => import('@views/Login.vue')
+    component: () => import('@views/login.vue')
   },
   {
     path: '/',
@@ -24,7 +24,7 @@ export const routes: RouteRecordRaw[] = [
           title: '首页',
           cache: false
         },
-        component: () => import('@views/dashboard/Index.vue')
+        component: () => import('@views/dashboard/index.vue')
       },
       {
         name: '401',
@@ -60,6 +60,15 @@ export const routes: RouteRecordRaw[] = [
           cache: false
         },
         component: () => import('@views/college/index.vue')
+      },
+      {
+        name: 'major',
+        path: '/school/major',
+        meta: {
+          title: '专业管理',
+          cache: false
+        },
+        component: () => import('@views/major/index.vue')
       }
     ]
   }

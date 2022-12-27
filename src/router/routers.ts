@@ -48,7 +48,7 @@ export const routes: RouteRecordRaw[] = [
   },
 
   {
-    path: '/',
+    path: '/school',
     component: Layout,
     meta: { cache: false },
     children: [
@@ -73,7 +73,7 @@ export const routes: RouteRecordRaw[] = [
     ]
   },
   {
-    path: '/',
+    path: '/educational',
     component: Layout,
     meta: { cache: false },
     children: [
@@ -85,6 +85,22 @@ export const routes: RouteRecordRaw[] = [
           cache: false
         },
         component: () => import('@views/educational/course/index.vue')
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: Layout,
+    meta: { cache: false },
+    children: [
+      {
+        name: 'center',
+        path: '/user/center',
+        meta: {
+          title: '个人中心',
+          cache: false
+        },
+        component: () => import('@views/center/index.vue')
       }
     ]
   }

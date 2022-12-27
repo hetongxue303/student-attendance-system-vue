@@ -172,7 +172,7 @@ watch(
 )
 
 /* 增加 编辑相关 */
-const dialogForm = ref<Course>({})
+const dialogForm = ref<Course>({ count: 5, time: 4 })
 const dialog = reactive({
   show: false,
   title: '',
@@ -241,6 +241,13 @@ const teachers = ref<User[]>([])
 const getSelectUserList = (role: number) => {
   getUserAll(role).then(({ data }) => (teachers.value = cloneDeep(data.data)))
 }
+// 处理选课/退课
+const handleChoiceCourse = (row: Course) => {
+  ElMessage.info('待处理...')
+}
+const handleQuitCourse = (row: Course) => {
+  ElMessage.info('待处理...')
+}
 </script>
 
 <template>
@@ -303,9 +310,10 @@ const getSelectUserList = (role: number) => {
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="course_name" label="专业名称" width="auto" />
     <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
+    <el-table-column prop="time" label="课时" width="auto" />
     <el-table-column label="已选" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="success">{{ row.choice }}人</el-tag>
+        <el-tag type="success"> {{ row.choice }}人</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="剩余" v width="auto">
@@ -320,7 +328,7 @@ const getSelectUserList = (role: number) => {
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="info" effect="dark">{{ row.count }}人</el-tag>
+        <el-tag type="info" effect="dark"> {{ row.count }}人</el-tag>
       </template>
     </el-table-column>
     <el-table-column prop="description" label="课程描述" width="auto" />
@@ -329,8 +337,14 @@ const getSelectUserList = (role: number) => {
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
-    <el-table-column label="操作" align="center" width="200">
+    <el-table-column label="操作" align="center" width="300">
       <template #default="{ row }">
+        <el-button type="primary" @click="handleChoiceCourse(row)">
+          选择
+        </el-button>
+        <el-button type="primary" @click="handleQuitCourse(row)">
+          退选
+        </el-button>
         <el-button
           icon="EditPen"
           type="primary"
@@ -380,6 +394,10 @@ const getSelectUserList = (role: number) => {
               placeholder="课程名称"
             />
           </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
           <el-form-item label="任课老师" prop="teacher_id">
             <el-select
               style="width: 100%"
@@ -394,6 +412,10 @@ const getSelectUserList = (role: number) => {
               />
             </el-select>
           </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="10">
+        <el-col :span="12">
           <el-form-item label="课程人数" prop="count">
             <template #default="{ row }">
               <el-input-number
@@ -401,11 +423,25 @@ const getSelectUserList = (role: number) => {
                 controls-position="right"
                 :min="5"
                 :max="200"
-                style="width: 75%"
+                style="width: 100%"
               >
                 {{ row.count }}
               </el-input-number>
-              <span style="color: #98a1a6; margin-left: 20px">介于5~200人</span>
+            </template>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="课时" prop="time">
+            <template #default="{ row }">
+              <el-input-number
+                :min="4"
+                :max="20"
+                controls-position="right"
+                v-model="dialogForm.time"
+                style="width: 100%"
+              >
+                {{ row.time }}
+              </el-input-number>
             </template>
           </el-form-item>
         </el-col>

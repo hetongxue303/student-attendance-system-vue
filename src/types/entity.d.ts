@@ -44,6 +44,7 @@ export interface Course {
   course_name?: string
   count?: number
   choice?: number
+  time?: number
   is_delete?: boolean
   description?: string
   create_time?: Date

@@ -4,15 +4,15 @@ import { permissionStore } from '../../types/pinia'
 export const usePermissionStore = defineStore('permission', {
   state: (): permissionStore => {
     return {
-      isAdmin: false,
       menus: [],
-      routers: []
+      routers: [],
+      permissions: []
     }
   },
   getters: {
-    getIsAdmin: (state) => state.isAdmin,
     getMenus: (state) => state.menus,
-    getRouters: (state) => state.routers
+    getRouters: (state) => state.routers,
+    getPermission: (state) => state.permissions
   },
   actions: {},
   persist: {

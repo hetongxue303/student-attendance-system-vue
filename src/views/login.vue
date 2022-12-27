@@ -3,7 +3,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { getCaptcha, login } from '../api/login'
 import { ElMessage, FormInstance, FormRules } from 'element-plus'
 import { encryptMD5 } from '../hook/encryptMD5'
-import { setToken, setTokenTime } from '../utils/auth'
+import { getToken, setToken, setTokenTime } from '../utils/auth'
 import { useRoute, useRouter } from 'vue-router'
 import { ILogin } from '../types/entity'
 import { useCookies } from '@vueuse/integrations/useCookies'
@@ -67,7 +67,7 @@ const loginHandler = async (formEl: FormInstance | undefined) => {
         rememberMe: formData.rememberMe
       })
       if (data.code === 200 && status === 200) {
-        setToken(data.access_token)
+        setToken(`bearer ${data.access_token}`)
         setTokenTime(new Date().getTime() + data.expire_time)
         userStore.setUserInfo(data)
         ElMessage.success('登陆成功')
@@ -111,13 +111,13 @@ onMounted(() => {
 <template>
   <div class="login-container">
     <div class="login-box">
-      <div class="left"></div>
+      <div class="left" />
       <div class="right">
         <h2 class="right-title">欢迎回来</h2>
         <div class="right-box">
-          <span class="right-box-line"></span>
+          <span class="right-box-line" />
           <span>账号密码登录</span>
-          <span class="right-box-line"></span>
+          <span class="right-box-line" />
         </div>
         <el-form ref="ruleFormRef" :model="formData" :rules="rules">
           <el-form-item prop="username">

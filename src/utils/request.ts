@@ -15,7 +15,7 @@ axios.create({
 axios.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
     if (getToken() && config.headers) {
-      config.headers.access_token = getToken()
+      config.headers.authorization = getToken()
     }
     return config
   },
@@ -30,7 +30,6 @@ axios.interceptors.response.use(
     return response
   },
   (error: any) => {
-    console.log(error)
     let { message } = error
     if (message === 'Network Error') {
       message = '连接异常'
@@ -38,6 +37,8 @@ axios.interceptors.response.use(
       message = '请求超时'
     } else if (message === 'Request failed with status code 401') {
       message = '凭证过期'
+    } else if (message === 'Request failed with status code 403') {
+      message = error.response.data.message || '没有权限'
     }
     ElNotification.error(message)
     return Promise.reject(error)

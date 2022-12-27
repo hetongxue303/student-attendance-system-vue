@@ -9,7 +9,9 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>布局设置</el-dropdown-item>
-        <el-dropdown-item>个人中心</el-dropdown-item>
+        <el-dropdown-item>
+          <router-link to="/user/center"> 个人中心 </router-link>
+        </el-dropdown-item>
         <el-dropdown-item divided @click="handlerLogout">
           退出登录
         </el-dropdown-item>

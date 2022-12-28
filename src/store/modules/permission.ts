@@ -12,7 +12,7 @@ export const usePermissionStore = defineStore('permission', {
   getters: {
     getMenus: (state) => state.menus,
     getRouters: (state) => state.routers,
-    getPermission: (state) => state.permissions
+    getPermissions: (state) => state.permissions
   },
   actions: {},
   persist: {

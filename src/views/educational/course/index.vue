@@ -16,7 +16,9 @@ import {
   addCourse,
   delCourse,
   getCoursePage,
-  updateCourse
+  updateCourse,
+  updateCourseChoice,
+  updateCourseQuit
 } from '../../../api/course'
 import { getUserAll } from '../../../api/user'
 
@@ -58,14 +60,6 @@ const rules = reactive<FormRules>({
       min: 5,
       max: 200,
       message: '课程人数介于5~200人',
-      trigger: 'blur'
-    }
-  ],
-  teacher_id: [
-    {
-      required: true,
-      type: 'number',
-      message: '请选择任课教师',
       trigger: 'blur'
     }
   ]
@@ -172,7 +166,7 @@ watch(
 )
 
 /* 增加 编辑相关 */
-const dialogForm = ref<Course>({ count: 5, time: 4 })
+const dialogForm = ref<Course>({ count: 5, class_time: 4 })
 const dialog = reactive({
   show: false,
   title: '',
@@ -242,11 +236,47 @@ const getSelectUserList = (role: number) => {
   getUserAll(role).then(({ data }) => (teachers.value = cloneDeep(data.data)))
 }
 // 处理选课/退课
-const handleChoiceCourse = (row: Course) => {
-  ElMessage.info('待处理...')
+const handleCourseChoice = async (row: Course) => {
+  if (row.count === row.choice) {
+    ElMessage.warning('课程已满')
+    return
+  }
+  ElMessageBox.confirm(
+    `确认选择 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    const { data } = await updateCourseChoice(row.course_id as number)
+    if (data.code === 200) {
+      ElNotification.success('选课成功')
+      await getCourseListPage()
+      return
+    }
+    ElNotification.success('选课失败，请重试！')
+  })
 }
-const handleQuitCourse = (row: Course) => {
-  ElMessage.info('待处理...')
+const handleCourseQuit = (row: Course) => {
+  ElMessageBox.confirm(
+    `确认退选 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    const { data } = await updateCourseQuit(row.course_id as number)
+    if (data.code === 200) {
+      ElNotification.success('退选成功')
+      await getCourseListPage()
+      return
+    }
+    ElNotification.success('退选失败，请重试！')
+  })
 }
 </script>
 
@@ -310,7 +340,7 @@ const handleQuitCourse = (row: Course) => {
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="course_name" label="专业名称" width="auto" />
     <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
-    <el-table-column prop="time" label="课时" width="auto" />
+    <el-table-column prop="class_time" label="课时" width="auto" />
     <el-table-column label="已选" width="auto" align="center">
       <template #default="{ row }">
         <el-tag type="success"> {{ row.choice }}人</el-tag>
@@ -339,10 +369,10 @@ const handleQuitCourse = (row: Course) => {
     </el-table-column>
     <el-table-column label="操作" align="center" width="300">
       <template #default="{ row }">
-        <el-button type="primary" @click="handleChoiceCourse(row)">
+        <el-button type="primary" @click="handleCourseChoice(row)">
           选择
         </el-button>
-        <el-button type="primary" @click="handleQuitCourse(row)">
+        <el-button type="primary" @click="handleCourseQuit(row)">
           退选
         </el-button>
         <el-button
@@ -396,7 +426,7 @@ const handleQuitCourse = (row: Course) => {
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="20">
+      <el-row :gutter="20" v-role="['admin']">
         <el-col :span="24">
           <el-form-item label="任课老师" prop="teacher_id">
             <el-select
@@ -431,16 +461,16 @@ const handleQuitCourse = (row: Course) => {
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="课时" prop="time">
+          <el-form-item label="课时" prop="class_time">
             <template #default="{ row }">
               <el-input-number
                 :min="4"
                 :max="20"
                 controls-position="right"
-                v-model="dialogForm.time"
+                v-model="dialogForm.class_time"
                 style="width: 100%"
               >
-                {{ row.time }}
+                {{ row.class_time }}
               </el-input-number>
             </template>
           </el-form-item>

@@ -33,6 +33,18 @@ export const updateCourse = (data: Course) => {
     data
   })
 }
+export const updateCourseChoice = (course_id: number) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/course/update/choice/${course_id}`
+  })
+}
+export const updateCourseQuit = (course_id: number) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/course/update/quit/${course_id}`
+  })
+}
 export const getCourseAll = () => {
   return axios({
     method: 'GET',

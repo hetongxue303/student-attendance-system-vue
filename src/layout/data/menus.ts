@@ -59,6 +59,28 @@ export const menus: Array<any> = [
     ]
   },
   {
+    name: '系统管理',
+    icon: 'system',
+    path: '/system',
+    children: [
+      {
+        name: '用户管理',
+        icon: 'user',
+        path: '/system/user'
+      },
+      {
+        name: '角色管理',
+        icon: 'role',
+        path: '/system/role'
+      },
+      {
+        name: '菜单管理',
+        icon: 'menu',
+        path: '/system/menu'
+      }
+    ]
+  },
+  {
     name: '关于系统',
     icon: 'about',
     path: '/about'

@@ -48,13 +48,13 @@ export const updateCourseQuit = (course_id: number) => {
 export const getCourseAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/course/getAll`
+    url: `${baseApi}/course/get/all`
   })
 }
 export const getStudentCoursePage = (params: QueryCourse) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/course/student/getPage`,
+    url: `${baseApi}/course/student/get/page`,
     params
   })
 }
@@ -62,7 +62,7 @@ export const getStudentCoursePage = (params: QueryCourse) => {
 export const getCoursePage = (params: QueryCourse) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/course/getPage`,
+    url: `${baseApi}/course/get/page`,
     params
   })
 }

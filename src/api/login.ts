@@ -7,7 +7,7 @@ const baseApi = import.meta.env.VITE_BASIC_API
 export const getCaptcha = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/captchaImage`
+    url: `${baseApi}/captcha-image`
   })
 }
 
@@ -31,7 +31,7 @@ export const logout = () => {
 export const getAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/menu/getAll`
+    url: `${baseApi}/menu/get/all`
   })
 }
 

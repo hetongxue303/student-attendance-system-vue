@@ -88,6 +88,40 @@ export const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/system',
+    component: Layout,
+    meta: { cache: false },
+    children: [
+      {
+        name: 'user',
+        path: '/system/user',
+        meta: {
+          title: '用户管理',
+          cache: false
+        },
+        component: () => import('@views/system/user/index.vue')
+      },
+      {
+        name: 'role',
+        path: '/system/role',
+        meta: {
+          title: '角色管理',
+          cache: false
+        },
+        component: () => import('@views/system/role/index.vue')
+      },
+      {
+        name: 'menu',
+        path: '/system/menu',
+        meta: {
+          title: '菜单管理',
+          cache: false
+        },
+        component: () => import('@views/system/menu/index.vue')
+      }
+    ]
+  },
+  {
     path: '/',
     component: Layout,
     meta: { cache: false },

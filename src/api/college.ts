@@ -36,14 +36,14 @@ export const updateCollege = (data: College) => {
 export const getCollegeAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/college/getAll`
+    url: `${baseApi}/college/get/all`
   })
 }
 
 export const getCollegePage = (params: QueryCollege) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/college/getPage`,
+    url: `${baseApi}/college/get/page`,
     params
   })
 }

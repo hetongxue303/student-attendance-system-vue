@@ -40,14 +40,14 @@ export const updateChoice = (data: Choice) => {
 export const getChoiceAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/choice/getAll`
+    url: `${baseApi}/choice/get/all`
   })
 }
 
 export const getChoicePage = (params: QueryChoice) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/choice/getPage`,
+    url: `${baseApi}/choice/get/page`,
     params
   })
 }

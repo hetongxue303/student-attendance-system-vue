@@ -36,14 +36,14 @@ export const updateMajor = (data: Major) => {
 export const getMajorAll = () => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/major/getAll`
+    url: `${baseApi}/major/get/all`
   })
 }
 
 export const getMajorPage = (params: QueryMajor) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/major/getPage`,
+    url: `${baseApi}/major/get/page`,
     params
   })
 }

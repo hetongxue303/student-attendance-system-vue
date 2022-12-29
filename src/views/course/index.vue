@@ -235,49 +235,6 @@ const teachers = ref<User[]>([])
 const getSelectUserList = (role: number) => {
   getUserAll(role).then(({ data }) => (teachers.value = cloneDeep(data.data)))
 }
-// 处理选课/退课
-const handleCourseChoice = async (row: Course) => {
-  if (row.count === row.choice) {
-    ElMessage.warning('课程已满')
-    return
-  }
-  ElMessageBox.confirm(
-    `确认选择 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    const { data } = await updateCourseChoice(row.course_id as number)
-    if (data.code === 200) {
-      ElNotification.success('选课成功')
-      await getCourseListPage()
-      return
-    }
-    ElNotification.success('选课失败，请重试！')
-  })
-}
-const handleCourseQuit = (row: Course) => {
-  ElMessageBox.confirm(
-    `确认退选 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    const { data } = await updateCourseQuit(row.course_id as number)
-    if (data.code === 200) {
-      ElNotification.success('退选成功')
-      await getCourseListPage()
-      return
-    }
-    ElNotification.success('退选失败，请重试！')
-  })
-}
 </script>
 
 <template>
@@ -348,33 +305,26 @@ const handleCourseQuit = (row: Course) => {
     </el-table-column>
     <el-table-column label="剩余" v width="auto">
       <template #default="{ row }">
-        <el-tag v-if="row.count === row.choice" effect="dark" type="warning">
-          已满
-        </el-tag>
-        <el-tag v-else effect="dark" type="success">
-          {{ row.count - row.choice }}人
+        <el-tag :type="row.count === row.choice ? 'danger' : 'success'">
+          {{
+            row.count === row.choice ? '已满' : `${row.count - row.choice}人`
+          }}
         </el-tag>
       </template>
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="info" effect="dark"> {{ row.count }}人</el-tag>
+        <el-tag type="warning" effect="dark"> {{ row.count }}人</el-tag>
       </template>
     </el-table-column>
     <el-table-column prop="description" label="课程描述" width="auto" />
-    <el-table-column label="创建时间" align="center" width="180">
+    <el-table-column label="发布时间" align="center" width="180">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
-    <el-table-column label="操作" align="center" width="300">
+    <el-table-column label="操作" align="center" width="200">
       <template #default="{ row }">
-        <el-button type="primary" @click="handleCourseChoice(row)">
-          选择
-        </el-button>
-        <el-button type="primary" @click="handleCourseQuit(row)">
-          退选
-        </el-button>
         <el-button
           icon="EditPen"
           type="primary"

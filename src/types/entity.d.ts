@@ -51,6 +51,9 @@ export interface Course {
   update_time?: Date
 }
 
+/**
+ * 用户属性
+ */
 export interface User {
   user_id?: number
   username?: string
@@ -69,6 +72,24 @@ export interface User {
   update_time?: Date
 }
 
+/**
+ * 选课记录
+ */
+export interface Choice {
+  choice_id?: number
+  user_id?: number
+  user?: User
+  course_id?: number
+  course?: Course
+  score?: number
+  is_quit?: boolean
+  is_delete?: boolean
+  status?: number
+  description?: string
+  create_time?: Date
+  update_time?: Date
+}
+
 export interface QueryCollege extends College, Page {}
 
 export interface QueryMajor extends Major, Page {}
@@ -76,3 +97,8 @@ export interface QueryMajor extends Major, Page {}
 export interface QueryCourse extends Course, Page {}
 
 export interface QueryUser extends User, Page {}
+
+export interface QueryChoice extends Choice, Page {
+  real_name?: string
+  course_name?: string
+}

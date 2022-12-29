@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import Pagination from '../../../components/Pagination/Index.vue'
+import Pagination from '../../components/Pagination/Index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
-import { Course, QueryCourse, User } from '../../../types/entity'
 import {
   ElMessage,
   ElMessageBox,
@@ -12,6 +11,7 @@ import {
   FormInstance,
   FormRules
 } from 'element-plus'
+import { Course, QueryCourse, User } from '../../types/entity'
 import {
   addCourse,
   delCourse,
@@ -19,8 +19,8 @@ import {
   updateCourse,
   updateCourseChoice,
   updateCourseQuit
-} from '../../../api/course'
-import { getUserAll } from '../../../api/user'
+} from '../../api/course'
+import { getUserAll } from '../../api/user'
 
 // 初始化相关
 const tableData = ref<Course[]>([])

@@ -3,7 +3,7 @@
   <el-scrollbar class="scrollbar" wrap-class="scrollbar-wrapper">
     <el-menu
       router
-      :unique-opened="false"
+      :unique-opened="true"
       :collapse-transition="true"
       :default-active="activeValue"
       :collapse="isCollapse"

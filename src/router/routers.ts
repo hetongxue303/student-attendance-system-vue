@@ -46,29 +46,19 @@ export const routes: RouteRecordRaw[] = [
       }
     ]
   },
-
   {
-    path: '/school',
+    path: '/attendance',
     component: Layout,
     meta: { cache: false },
     children: [
       {
-        name: 'college',
-        path: '/school/college',
+        name: 'record',
+        path: '/attendance/record',
         meta: {
-          title: '学院管理',
+          title: '考勤记录',
           cache: false
         },
-        component: () => import('@views/school/college/index.vue')
-      },
-      {
-        name: 'major',
-        path: '/school/major',
-        meta: {
-          title: '专业管理',
-          cache: false
-        },
-        component: () => import('@views/school/major/index.vue')
+        component: () => import('@views/attendance/record/index.vue')
       }
     ]
   },
@@ -78,13 +68,22 @@ export const routes: RouteRecordRaw[] = [
     meta: { cache: false },
     children: [
       {
-        name: 'course',
-        path: '/educational/course',
+        name: 'college',
+        path: '/educational/college',
         meta: {
-          title: '课程管理',
+          title: '学院管理',
           cache: false
         },
-        component: () => import('@views/educational/course/index.vue')
+        component: () => import('@views/educational/college/index.vue')
+      },
+      {
+        name: 'major',
+        path: '/educational/major',
+        meta: {
+          title: '专业管理',
+          cache: false
+        },
+        component: () => import('@views/educational/major/index.vue')
       }
     ]
   },
@@ -93,6 +92,60 @@ export const routes: RouteRecordRaw[] = [
     component: Layout,
     meta: { cache: false },
     children: [
+      {
+        name: 'sign-in',
+        path: '/sign-in',
+        meta: {
+          title: '学生签到',
+          cache: false
+        },
+        component: () => import('@views/sign-in/index.vue')
+      },
+      {
+        name: 'my-course',
+        path: '/my-course',
+        meta: {
+          title: '我的课程',
+          cache: false
+        },
+        component: () => import('@views/my-course/index.vue')
+      },
+      {
+        name: 'choice-list',
+        path: '/choice-list',
+        meta: {
+          title: '选课列表',
+          cache: false
+        },
+        component: () => import('@views/choice-list/index.vue')
+      },
+      {
+        name: 'application-list',
+        path: '/application-list',
+        meta: {
+          title: '申请列表',
+          cache: false
+        },
+        component: () => import('@views/application-list/index.vue')
+      },
+      {
+        name: 'course',
+        path: '/course',
+        meta: {
+          title: '课程管理',
+          cache: false
+        },
+        component: () => import('@views/course/index.vue')
+      },
+      {
+        name: 'about',
+        path: '/about',
+        meta: {
+          title: '关于系统',
+          cache: false
+        },
+        component: () => import('@views/about/index.vue')
+      },
       {
         name: 'center',
         path: '/user/center',

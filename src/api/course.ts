@@ -51,6 +51,12 @@ export const getCourseAll = () => {
     url: `${baseApi}/course/get/all`
   })
 }
+export const getTeacherCourseAll = () => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/course/teacher/get/all`
+  })
+}
 export const getStudentCoursePage = (params: QueryCourse) => {
   return axios({
     method: 'GET',

@@ -173,6 +173,15 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/course/index.vue')
       },
       {
+        name: '/create-attendance',
+        path: '//create-attendance',
+        meta: {
+          title: '发布签到',
+          cache: false
+        },
+        component: () => import('@views//create-attendance/index.vue')
+      },
+      {
         name: 'about',
         path: '/about',
         meta: {

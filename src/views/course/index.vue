@@ -16,9 +16,7 @@ import {
   addCourse,
   delCourse,
   getCoursePage,
-  updateCourse,
-  updateCourseChoice,
-  updateCourseQuit
+  updateCourse
 } from '../../api/course'
 import { getUserAll } from '../../api/user'
 

@@ -125,6 +125,31 @@ export interface Menu {
   update_time?: Date
 }
 
+export interface Attendance {
+  attendance_id?: number
+  user_id?: number
+  user?: User
+  course_id?: number
+  course?: Course
+  release_time?: Date
+  end_time?: Date
+  course_count?: number
+  attendance_count?: number
+  is_end?: boolean
+  create_time?: Date
+  update_time?: Date
+}
+
+export interface AttendanceRecord {
+  attendance_record_id?: number
+  user_id?: number
+  user?: User
+  attendance_id?: number
+  attendance?: Attendance
+  attendance_type?: number
+  description?: string
+}
+
 export interface MenuVo {
   name: string
   icon: string
@@ -151,6 +176,10 @@ export interface QueryUser extends User, Page {}
 export interface QueryRole extends Role, Page {}
 
 export interface QueryMenu extends Menu, Page {}
+
+export interface QueryAttendance extends Attendance, Page {}
+
+export interface QueryAttendanceRecord extends AttendanceRecord, Page {}
 
 export interface QueryChoice extends Choice, Page {
   real_name?: string

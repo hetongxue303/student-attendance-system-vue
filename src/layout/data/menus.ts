@@ -30,6 +30,11 @@ export const menus: Array<any> = [
     path: '/course'
   },
   {
+    name: '发布签到',
+    icon: 'course',
+    path: '/create-attendance'
+  },
+  {
     name: '考勤管理',
     icon: 'user',
     path: '/attendance',

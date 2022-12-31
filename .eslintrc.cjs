@@ -80,6 +80,7 @@ module.exports = {
     'vue/no-parsing-error': 0,
     'vue/attributes-order': 0,
     'consistent-return': 0,
+    'default-case': 0,
     camelcase: 'off'
   }
 }

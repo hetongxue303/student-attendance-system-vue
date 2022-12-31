@@ -1,9 +1,11 @@
+import { Menu } from './entity'
+
 export type appStore = {
   collapse: boolean
 }
 
 export type permissionStore = {
-  menus: any[]
+  menus: Array<Menu>
   routers: any[]
   permissions: string[]
 }

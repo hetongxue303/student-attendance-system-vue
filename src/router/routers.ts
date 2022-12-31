@@ -46,6 +46,7 @@ export const routes: RouteRecordRaw[] = [
       }
     ]
   },
+
   {
     path: '/attendance',
     component: Layout,

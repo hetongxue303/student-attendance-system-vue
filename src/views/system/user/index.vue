@@ -21,6 +21,7 @@ import {
   FormRules
 } from 'element-plus'
 import { getRoleAll } from '../../../api/role'
+import { encryptMD5 } from '../../../hook/encryptMD5'
 
 // 初始化相关
 const tableData = ref<User[]>([])
@@ -175,6 +176,10 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid) => {
     if (valid) {
       if (dialog.operate === 'insert') {
+        if (dialogForm.value.password) {
+          alert('有密码')
+          dialogForm.value.password = encryptMD5(dialogForm.value.password)
+        }
         const { data } = await addUser(dialogForm.value)
         if (data.code === 200) {
           await getUserListPage()
@@ -224,8 +229,10 @@ const handleSwitchChange = (user: User) => {
     .then(async () => {
       const { data } = await updateUser(user)
       data.code === 200
-        ? ElNotification.success('更新成功')
-        : ElNotification.error('更新失败，请重试！')
+        ? ElNotification.success(`${user.is_enable ? '启用' : '禁用'}成功`)
+        : ElNotification.error(
+            `${user.is_enable ? '启用' : '禁用'}成功，请重试！`
+          )
     })
     .catch(() => (user.is_enable = !user.is_enable))
 }
@@ -236,6 +243,28 @@ const getRoleList = () => {
   getRoleAll().then(
     ({ data }) => (roleList.value = cloneDeep(data.data.record))
   )
+}
+
+// 重置密码
+const resetPassword = () => {
+  ElMessageBox.confirm(
+    `确认重置${dialogForm.value.real_name}的密码吗?`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
+    dialogForm.value.password = encryptMD5('123456')
+    const { data } = await updateUser(dialogForm.value)
+    if (data.code === 200) {
+      ElNotification.success('重置成功')
+      await getUserListPage()
+      return
+    }
+    ElNotification.error('重置失败，请重试！')
+  })
 }
 </script>
 
@@ -310,7 +339,7 @@ const getRoleList = () => {
   >
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="username" label="账户" width="auto" />
-    <el-table-column prop="nick_name" label="昵称" width="auto" />
+    <el-table-column prop="real_name" label="姓名" width="auto" />
     <el-table-column label="性别" width="auto">
       <template #default="{ row }">
         {{ row.gender === 1 ? '男' : '女' }}
@@ -381,12 +410,51 @@ const getRoleList = () => {
     >
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="账户名" prop="username">
+          <el-form-item label="账户" prop="username">
             <el-input
               v-model="dialogForm.username"
               type="text"
               clearable
-              placeholder="账户名"
+              @clear="dialogForm.username = undefined"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col
+          v-show="dialog.operate === 'update'"
+          :span="4"
+          style="margin-left: 30px"
+        >
+          <el-link
+            type="primary"
+            :underline="false"
+            @click.stop="resetPassword"
+          >
+            重置密码
+          </el-link>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20" v-show="dialog.operate === 'insert'">
+        <el-col :span="12">
+          <el-form-item label="密码" prop="password">
+            <el-input
+              v-model="dialogForm.password"
+              type="text"
+              clearable
+              show-password
+              @clear="dialogForm.password = undefined"
+              placeholder="默认密码：123456"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="姓名" prop="real_name">
+            <el-input
+              v-model="dialogForm.real_name"
+              @clear="dialogForm.real_name = undefined"
+              type="text"
+              clearable
             />
           </el-form-item>
         </el-col>
@@ -396,8 +464,9 @@ const getRoleList = () => {
               v-model="dialogForm.phone"
               :controls="false"
               type="text"
+              @clear="dialogForm.phone = undefined"
               maxlength="11"
-              placeholder="电话"
+              minlength="6"
             />
           </el-form-item>
         </el-col>
@@ -407,7 +476,7 @@ const getRoleList = () => {
           <el-form-item label="昵称" prop="nick_name">
             <el-input
               v-model="dialogForm.nick_name"
-              placeholder="昵称"
+              @clear="dialogForm.nick_name = undefined"
               type="text"
               clearable
             />
@@ -417,7 +486,7 @@ const getRoleList = () => {
           <el-form-item label="邮箱" prop="email">
             <el-input
               v-model="dialogForm.email"
-              placeholder="邮箱"
+              @clear="dialogForm.email = undefined"
               type="text"
               clearable
             />
@@ -444,12 +513,13 @@ const getRoleList = () => {
       </el-row>
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="角色" prop="type">
+          <el-form-item label="角色" prop="role">
             <el-select
               v-model="dialogForm.role"
               style="width: 100%"
               placeholder="请选择"
               clearable
+              @clear="dialogForm.role = undefined"
             >
               <el-option
                 v-for="(item, index) in roleList"
@@ -469,6 +539,8 @@ const getRoleList = () => {
               type="textarea"
               :rows="5"
               resize="none"
+              clearable
+              @clear="dialogForm.description = undefined"
               placeholder="用户描述(默认：空)"
             />
           </el-form-item>

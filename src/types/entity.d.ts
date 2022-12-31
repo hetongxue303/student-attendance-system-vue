@@ -1,3 +1,5 @@
+import { RouteMeta } from 'vue-router'
+
 export interface ILogin {
   username: string
   password: string
@@ -102,6 +104,42 @@ export interface Role {
   update_time?: Date
 }
 
+export interface Menu {
+  menu_id?: number
+  menu_name?: string
+  menu_title?: string
+  menu_type?: number
+  parent_id?: number
+  path?: string
+  component?: string
+  sort?: number
+  redirect?: string
+  icon?: string
+  per_key?: string
+  is_show?: boolean
+  is_sub?: boolean
+  is_cache?: boolean
+  is_delete?: boolean
+  description?: string
+  create_time?: Date
+  update_time?: Date
+}
+
+export interface MenuVo {
+  name: string
+  icon: string
+  path: string
+  children?: Array<MenuVo>
+}
+
+export interface RouterVo {
+  name?: string
+  path?: string
+  component?: string
+  meta?: RouteMeta
+  children?: Array<RouterVo>
+}
+
 export interface QueryCollege extends College, Page {}
 
 export interface QueryMajor extends Major, Page {}
@@ -111,6 +149,8 @@ export interface QueryCourse extends Course, Page {}
 export interface QueryUser extends User, Page {}
 
 export interface QueryRole extends Role, Page {}
+
+export interface QueryMenu extends Menu, Page {}
 
 export interface QueryChoice extends Choice, Page {
   real_name?: string

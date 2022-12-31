@@ -122,19 +122,10 @@ watch(
   >
     <el-table-column prop="course_name" label="专业名称" width="auto" />
     <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
-    <el-table-column prop="class_time" label="课时" width="auto" />
-    <el-table-column label="已选" width="auto" align="center">
+    <el-table-column prop="is_" label="状态" width="auto" />
+    <el-table-column label="课时" width="auto">
       <template #default="{ row }">
-        <el-tag type="success"> {{ row.choice }}人</el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column label="剩余" v width="auto">
-      <template #default="{ row }">
-        <el-tag :type="row.count === row.choice ? 'danger' : 'success'">
-          {{
-            row.count === row.choice ? '已满' : `${row.count - row.choice}人`
-          }}
-        </el-tag>
+        <el-tag type="success"> {{ row.class_time }}课时</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
@@ -143,7 +134,7 @@ watch(
       </template>
     </el-table-column>
     <el-table-column prop="description" label="课程描述" width="auto" />
-    <el-table-column label="发布时间" align="center" width="180">
+    <el-table-column label="申请时间" align="center" width="180">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>

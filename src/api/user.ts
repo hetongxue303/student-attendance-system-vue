@@ -39,7 +39,10 @@ export const delUser = (id: number) => {
 }
 
 export const addUser = (data: User) => {
-  data.password = encryptMD5('123456') // 设置默认密码
+  if (!data.password) {
+    alert('设置默认密码')
+    data.password = encryptMD5('123456') // 设置默认密码
+  }
   return axios({
     method: 'POST',
     url: `${baseApi}/user/insert`,

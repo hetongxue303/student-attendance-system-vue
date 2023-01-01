@@ -4,15 +4,15 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
 import { ElMessage, ElTable, FormInstance, FormRules } from 'element-plus'
-import { Course, QueryCourse } from '../../types/entity'
-import { getStudentCoursePage } from '../../api/course'
+import { getStudentChoicePage } from '../../api/choice'
+import { Choice, QueryChoice } from '../../types/entity'
 
-const tableData = ref<Course[]>([])
+const tableData = ref<Choice[]>([])
 const tableLoading = ref<boolean>(false)
 const getStudentCourseListPage = async () => {
   tableLoading.value = true
   setTimeout(async () => {
-    const { data } = await getStudentCoursePage(query)
+    const { data } = await getStudentChoicePage(query)
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
@@ -23,7 +23,7 @@ onMounted(() => getStudentCourseListPage())
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({})
 
-const query: QueryCourse = reactive({
+const query: QueryChoice = reactive({
   currentPage: 1,
   pageSize: 10
 })
@@ -53,7 +53,7 @@ watch(
 )
 
 const dialogShow = ref<boolean>(false)
-const dialogForm: Course = reactive({})
+const dialogForm: Choice = reactive({})
 
 // const handleOperate = async (formEl: FormInstance | undefined) => {
 //   if (!formEl) return
@@ -99,7 +99,7 @@ watch(
     <el-row :gutter="20" class="search-box">
       <el-col :span="4">
         <el-input
-          v-model="query.course_name"
+          v-model="query.status"
           type="text"
           placeholder="课程名称..."
         />
@@ -120,17 +120,21 @@ watch(
     width="100%"
     v-loading="tableLoading"
   >
-    <el-table-column prop="course_name" label="专业名称" width="auto" />
-    <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
-    <el-table-column prop="is_" label="状态" width="auto" />
-    <el-table-column label="课时" width="auto">
+    <el-table-column prop="course.course_name" label="课程名称" width="auto" />
+    <el-table-column
+      prop="course.teacher.real_name"
+      label="任课教师"
+      width="auto"
+      align="center"
+    />
+    <el-table-column label="课时" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="success"> {{ row.class_time }}课时</el-tag>
+        <el-tag type="success"> {{ row.course.class_time }}课时</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="warning" effect="dark"> {{ row.count }}人</el-tag>
+        <el-tag type="warning" effect="dark"> {{ row.course.count }}人</el-tag>
       </template>
     </el-table-column>
     <el-table-column prop="description" label="课程描述" width="auto" />

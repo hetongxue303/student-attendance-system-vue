@@ -35,18 +35,6 @@ export const menus: Array<any> = [
     path: '/create-attendance'
   },
   {
-    name: '考勤管理',
-    icon: 'user',
-    path: '/attendance',
-    children: [
-      {
-        name: '考勤记录',
-        icon: 'user',
-        path: '/attendance/record'
-      }
-    ]
-  },
-  {
     name: '教务管理',
     icon: 'user',
     path: '/educational',

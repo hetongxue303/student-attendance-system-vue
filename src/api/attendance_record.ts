@@ -10,6 +10,13 @@ export const addAttendanceRecord = (data: AttendanceRecord) => {
     data
   })
 }
+export const studentAttendance = (data: AttendanceRecord) => {
+  return axios({
+    method: 'POST',
+    url: `${baseApi}/attendance-record/student/attendance`,
+    data
+  })
+}
 export const getAttendanceRecordPage = (params: QueryAttendanceRecord) => {
   return axios({
     method: 'GET',

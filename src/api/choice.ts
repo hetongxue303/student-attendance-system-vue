@@ -1,5 +1,5 @@
 import axios from '../utils/request'
-import { Choice, QueryChoice } from '../types/entity'
+import { Choice, QueryChoice, QueryCourse } from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
@@ -48,6 +48,13 @@ export const getChoicePage = (params: QueryChoice) => {
   return axios({
     method: 'GET',
     url: `${baseApi}/choice/get/page`,
+    params
+  })
+}
+export const getStudentChoicePage = (params: QueryChoice) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/choice/student/get/page`,
     params
   })
 }

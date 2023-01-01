@@ -150,6 +150,11 @@ export interface AttendanceRecord {
   description?: string
 }
 
+export interface StudentAttendanceDto {
+  attendance?: Attendance
+  attendance_record?: AttendanceRecord
+}
+
 export interface MenuVo {
   name: string
   icon: string
@@ -178,6 +183,8 @@ export interface QueryRole extends Role, Page {}
 export interface QueryMenu extends Menu, Page {}
 
 export interface QueryAttendance extends Attendance, Page {}
+
+export interface QueryStudentAttendance extends StudentAttendanceDto, Page {}
 
 export interface QueryAttendanceRecord extends AttendanceRecord, Page {}
 

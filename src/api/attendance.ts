@@ -4,6 +4,7 @@ import { Attendance, QueryAttendance } from '../types/entity'
 const baseApi = import.meta.env.VITE_BASIC_API
 
 export const addAttendance = (data: Attendance) => {
+  console.log(data)
   return axios({
     method: 'POST',
     url: `${baseApi}/attendance/insert`,

@@ -48,22 +48,6 @@ export const routes: RouteRecordRaw[] = [
   },
 
   {
-    path: '/attendance',
-    component: Layout,
-    meta: { cache: false },
-    children: [
-      {
-        name: 'record',
-        path: '/attendance/record',
-        meta: {
-          title: '考勤记录',
-          cache: false
-        },
-        component: () => import('@views/attendance/record/index.vue')
-      }
-    ]
-  },
-  {
     path: '/educational',
     component: Layout,
     meta: { cache: false },

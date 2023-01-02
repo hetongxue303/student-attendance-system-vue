@@ -53,8 +53,8 @@ export const routes: RouteRecordRaw[] = [
     meta: { cache: false },
     children: [
       {
-        name: 'college',
-        path: '/educational/college',
+        name: 'college-list',
+        path: '/educational/college-list',
         meta: {
           title: '学院管理',
           cache: false
@@ -62,8 +62,8 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/educational/college/index.vue')
       },
       {
-        name: 'major',
-        path: '/educational/major',
+        name: 'major-list',
+        path: '/educational/major-list',
         meta: {
           title: '专业管理',
           cache: false
@@ -148,8 +148,8 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@views/application-list/index.vue')
       },
       {
-        name: 'course',
-        path: '/course',
+        name: 'course-list',
+        path: '/course-list',
         meta: {
           title: '课程管理',
           cache: false
@@ -158,12 +158,12 @@ export const routes: RouteRecordRaw[] = [
       },
       {
         name: '/create-attendance',
-        path: '//create-attendance',
+        path: '/create-attendance',
         meta: {
           title: '发布签到',
           cache: false
         },
-        component: () => import('@views//create-attendance/index.vue')
+        component: () => import('@views/create-attendance/index.vue')
       },
       {
         name: 'about',

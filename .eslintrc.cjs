@@ -57,6 +57,7 @@ module.exports = {
     'import/prefer-default-export': 0,
     'import/extensions': 0,
     'import/order': 0,
+    'import/first': 0,
     'import/newline-after-import': 0,
     '@typescript-eslint/no-unused-vars': 0,
     '@typescript-eslint/ban-types': 0,
@@ -81,6 +82,7 @@ module.exports = {
     'vue/attributes-order': 0,
     'consistent-return': 0,
     'default-case': 0,
+    'spaced-comment': 0,
     camelcase: 'off'
   }
 }

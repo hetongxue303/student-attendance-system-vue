@@ -4,7 +4,13 @@ import { permissionStore } from '../../types/pinia'
 export const usePermissionStore = defineStore('permission', {
   state: (): permissionStore => {
     return {
-      menus: [],
+      menus: [
+        {
+          name: '首页',
+          icon: 'index',
+          path: '/dashboard'
+        }
+      ],
       routers: [],
       permissions: []
     }

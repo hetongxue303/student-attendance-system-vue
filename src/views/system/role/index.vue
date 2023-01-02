@@ -9,6 +9,7 @@ import {
   ElMessageBox,
   ElNotification,
   ElTable,
+  ElTree,
   FormInstance,
   FormRules
 } from 'element-plus'
@@ -18,6 +19,7 @@ const tableData = ref<Role[]>([])
 const roleMultipleRef = ref<InstanceType<typeof ElTable>>()
 const multipleSelection = ref<Role[]>([])
 const total = ref<number>(0)
+const switchLoading = ref<boolean>(false)
 const dialogForm = ref<Role>({ is_enable: false })
 const ruleFormRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
@@ -167,6 +169,28 @@ const resetSearch = () => {
   query.role_name = undefined
   getRoleListPage()
 }
+const handleSwitchChange = (role: Role) => {
+  switchLoading.value = true
+  ElMessageBox.confirm(
+    `是否${role.is_enable ? '启用' : '禁用'} ${role.role_name} 角色?`,
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  )
+    .then(async () => {
+      const { data } = await updateRole(role)
+      data.code === 200
+        ? ElNotification.success(`${role.is_enable ? '启用' : '禁用'}成功`)
+        : ElNotification.error(
+            `${role.is_enable ? '启用' : '禁用'}失败，请重试！`
+          )
+    })
+    .catch(() => (role.is_enable = !role.is_enable))
+    .finally(() => (switchLoading.value = false))
+}
 watch(
   () => query,
   async () => {
@@ -183,6 +207,85 @@ watch(
   { immediate: true, deep: true }
 )
 onMounted(() => getRoleListPage())
+
+/*菜单分配相关*/
+import type Node from 'element-plus/es/components/tree/src/model/node'
+import { getMenuLazyTree, getOneMenuByRoleId } from '../../../api/menu'
+import { TreeNodeData } from 'element-plus/lib/components/tree/src/tree.type'
+
+const saveDisabled = ref<boolean>(false)
+const menuTreeRef = ref<InstanceType<typeof ElTree>>()
+const menuProps = {
+  label: 'name',
+  disable: 'disable',
+  isLeaf: 'leaf'
+}
+
+interface MenuLazyTree {
+  id: number
+  name: string
+  disable: boolean
+  leaf: boolean
+}
+
+const menuLoad = async (
+  node: Node,
+  resolve: (data: MenuLazyTree[]) => void
+) => {
+  if (node.level === 0) {
+    const { data } = await getMenuLazyTree(0)
+    return resolve(cloneDeep(data.data))
+  }
+  if (node.level > 0) {
+    setTimeout(async () => {
+      const { data } = await getMenuLazyTree(node.data.id)
+      return resolve(cloneDeep(data.data))
+    }, 500)
+  }
+  return resolve([])
+}
+
+const getCheckedKeys = (menus: MenuLazyTree[]): number[] => {
+  const menu_ids: number[] = []
+  menus.forEach(async (item) => {
+    menu_ids.push(item.id)
+    if (!item.leaf) {
+      const { data } = await getMenuLazyTree(item.id)
+      menu_ids.push(...getCheckedKeys(cloneDeep(data.data)))
+    }
+  })
+  console.log(menu_ids)
+  return menu_ids
+}
+const handleSaveMenu = () => {
+  const menu_ids: number[] = getCheckedKeys(
+    menuTreeRef.value?.getCheckedNodes() as MenuLazyTree[]
+  )
+  console.log(menu_ids)
+  // menuTreeRef.value?.getCheckedNodes().forEach(async (item) => {
+  //   if (!item.leaf) {
+  //     const { data } = await getMenuLazyTree(item.id)
+  //     if (data.data) {
+  //       data.data.forEach((val: any) => {
+  //         menu_ids.value.push(val.id)
+  //       })
+  //     }
+  //   }
+  // })
+}
+const handleRowClick = async ({ role_id }: Role) => {
+  const { data } = await getOneMenuByRoleId(role_id as number)
+  menuTreeRef.value?.setCheckedNodes([])
+  menuTreeRef.value?.setCheckedNodes(cloneDeep(data.data))
+}
+watch(
+  () => menuTreeRef.value?.getCheckedNodes(),
+  (value) => {
+    if (value) {
+      saveDisabled.value = !(value.length > 0)
+    }
+  }
+)
 </script>
 
 <template>
@@ -245,11 +348,35 @@ onMounted(() => getRoleListPage())
           ref="roleMultipleRef"
           :data="tableData"
           highlight-current-row
+          @row-click="handleRowClick"
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="50" align="center" />
-          <el-table-column prop="role_name" label="角色名称" width="auto" />
-          <el-table-column prop="role_key" label="角色标识" width="auto" />
+          <el-table-column prop="role_name" label="名称" width="auto" />
+          <el-table-column
+            prop="role_key"
+            label="标识"
+            width="auto"
+            align="center"
+          />
+          <el-table-column
+            prop="is_enable"
+            label="状态"
+            width="auto"
+            align="center"
+          >
+            <template #default="{ row }">
+              <el-switch
+                v-model="row.is_enable"
+                :loading="switchLoading"
+                @change="handleSwitchChange(row)"
+                style="
+                  --el-switch-on-color: #13ce66;
+                  --el-switch-off-color: #ff4949;
+                "
+              />
+            </template>
+          </el-table-column>
           <el-table-column label="创建时间" align="center" width="180">
             <template #default="{ row }">
               <span>
@@ -300,7 +427,16 @@ onMounted(() => getRoleListPage())
             </el-button>
           </div>
         </template>
-        菜单树
+        <el-tree
+          :props="menuProps"
+          :load="menuLoad"
+          node-key="id"
+          :highlight-current="false"
+          empty-text="暂无数据"
+          ref="menuTreeRef"
+          lazy
+          show-checkbox
+        />
       </el-card>
     </el-col>
   </el-row>

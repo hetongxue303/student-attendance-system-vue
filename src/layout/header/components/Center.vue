@@ -10,7 +10,7 @@
       <el-dropdown-menu>
         <el-dropdown-item>布局设置</el-dropdown-item>
         <el-dropdown-item>
-          <router-link to="/user/center"> 个人中心 </router-link>
+          <router-link to="/user/center"> 个人中心</router-link>
         </el-dropdown-item>
         <el-dropdown-item divided @click="handlerLogout">
           退出登录
@@ -30,7 +30,7 @@ import { settings } from '../../../settings'
 const userStore = useUserStore()
 
 const handlerLogout = async () => {
-  ElMessageBox.confirm('您确认确认退出系统吗？', '提示', {
+  ElMessageBox.confirm('您确认要退出系统吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'

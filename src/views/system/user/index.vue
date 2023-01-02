@@ -177,7 +177,6 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
     if (valid) {
       if (dialog.operate === 'insert') {
         if (dialogForm.value.password) {
-          alert('有密码')
           dialogForm.value.password = encryptMD5(dialogForm.value.password)
         }
         const { data } = await addUser(dialogForm.value)
@@ -214,11 +213,11 @@ watch(
 )
 
 // switch改变处理
+const switchLoading = ref<boolean>(false)
 const handleSwitchChange = (user: User) => {
+  switchLoading.value = true
   ElMessageBox.confirm(
-    `此操作将 ${user.is_enable ? '启用' : '禁用'} ${
-      user.real_name
-    }, 是否继续？`,
+    `确定要${user.is_enable ? '启用' : '禁用'} ${user.real_name} 吗?`,
     '提示',
     {
       confirmButtonText: '确定',
@@ -235,6 +234,7 @@ const handleSwitchChange = (user: User) => {
           )
     })
     .catch(() => (user.is_enable = !user.is_enable))
+    .finally(() => (switchLoading.value = false))
 }
 
 // 获取所有角色信息
@@ -273,11 +273,7 @@ const resetPassword = () => {
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
       <el-col :span="4">
-        <el-input
-          v-model="query.username"
-          type="text"
-          placeholder="请输入用户姓名..."
-        />
+        <el-input v-model="query.username" type="text" placeholder="用户姓名" />
       </el-col>
       <el-col :span="3">
         <el-select v-model="query.is_enable" placeholder="状态" clearable>
@@ -351,6 +347,7 @@ const resetPassword = () => {
       <template #default="{ row }">
         <el-switch
           v-model="row.is_enable"
+          :loading="switchLoading"
           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
           :disabled="row.username === useUserStore().getUsername"
           @change="handleSwitchChange(row)"

@@ -40,7 +40,6 @@ export const delUser = (id: number) => {
 
 export const addUser = (data: User) => {
   if (!data.password) {
-    alert('设置默认密码')
     data.password = encryptMD5('123456') // 设置默认密码
   }
   return axios({

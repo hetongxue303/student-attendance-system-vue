@@ -3,6 +3,7 @@ import { UserStore } from '../../types/pinia'
 import { getToken, removeToken, removeTokenTime } from '../../utils/auth'
 import { local, session } from '../../utils/storage'
 import { usePermissionStore } from './permission'
+import { filterMenu } from '../../filter/menu'
 
 export const useUserStore = defineStore('user', {
   state: (): UserStore => {
@@ -35,7 +36,7 @@ export const useUserStore = defineStore('user', {
       } else {
         this.roles = []
       }
-      permissionStore.menus = menus
+      permissionStore.menus.push(...filterMenu(menus, 0))
       permissionStore.permissions = permissions
     },
     systemLogout() {

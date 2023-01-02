@@ -1,12 +1,12 @@
-import { Menu } from './entity'
+import { Menu, MenuVo, RouterVo } from './entity'
 
 export type appStore = {
   collapse: boolean
 }
 
 export type permissionStore = {
-  menus: Array<Menu>
-  routers: any[]
+  menus: Array<MenuVo>
+  routers: Array<RouterVo>
   permissions: string[]
 }
 

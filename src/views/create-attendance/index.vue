@@ -9,7 +9,7 @@ import {
 } from 'element-plus'
 import { getTeacherCourseAll } from '../../api/course'
 import { cloneDeep } from 'lodash'
-import { addAttendance } from '../../api/attendance'
+import { addAttendance, getCourseStudentInfo } from '../../api/attendance'
 
 /**
  * 处理时间
@@ -73,12 +73,21 @@ const tabs = ref<number>(1)
 const handleTabClick = (pane: TabsPaneContext) => {
   tabs.value = pane.props.name as number
 }
+
+const getCourseStudent = async () => {
+  const { data } = await getCourseStudentInfo()
+  if (data.code === 200) {
+    alert('获取成功')
+  }
+}
 </script>
 
 <template>
   <button @click.stop="setDialog" class="btn-grad">发布签到</button>
   <el-tabs type="border-card" v-model="tabs" @tab-click="handleTabClick">
-    <el-tab-pane :name="1" label="已签到">已签到</el-tab-pane>
+    <el-tab-pane :name="1" label="已签到">
+      <el-table></el-table>
+    </el-tab-pane>
     <el-tab-pane :name="2" label="未签到">未签到</el-tab-pane>
     <el-tab-pane :name="3" label="历史记录">历史记录</el-tab-pane>
   </el-tabs>

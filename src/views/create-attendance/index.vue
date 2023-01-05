@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { Attendance, Course } from '../../types/entity'
+import Pagination from '../../components/Pagination/Index.vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import {
-  ElNotification,
-  FormInstance,
-  FormRules,
-  TabsPaneContext
-} from 'element-plus'
+  Attendance,
+  Course,
+  QueryAttendance,
+  StudentAttendanceRecord,
+  User
+} from '../../types/entity'
+import { ElNotification, FormInstance, FormRules } from 'element-plus'
 import { getTeacherCourseAll } from '../../api/course'
 import { cloneDeep } from 'lodash'
-import { addAttendance, getCourseStudentInfo } from '../../api/attendance'
+import {
+  addAttendance,
+  getAttendancePage,
+  getStudentCheckedPage,
+  updateAttendance
+} from '../../api/attendance'
+import { randomTimeout } from '../../utils/common'
+import moment from 'moment'
 
 /**
  * 处理时间
@@ -40,6 +49,7 @@ const handleCreate = async (formEl: FormInstance | undefined) => {
       if (data.code === 200) {
         ElNotification.success('发布成功')
         dialog.show = false
+        await getAttendancePageList()
         return
       }
       ElNotification.error('发布失败，请重试！')
@@ -48,7 +58,16 @@ const handleCreate = async (formEl: FormInstance | undefined) => {
 }
 const dialogForm: Attendance = reactive({})
 const ruleFormRef = ref<FormInstance>()
-const rules = reactive<FormRules>({})
+const rules = reactive<FormRules>({
+  course_id: [
+    {
+      required: true,
+      type: 'number',
+      message: '课程名称不能为空',
+      trigger: 'blur'
+    }
+  ]
+})
 const courses = ref<Course[]>([])
 const temp: { type?: number; duration?: number } = reactive({
   type: 2,
@@ -69,44 +88,224 @@ const getTeacherCourseList = async () => {
   if (data.code === 200) courses.value = cloneDeep(data.data)
 }
 
-const tabs = ref<number>(1)
-const handleTabClick = (pane: TabsPaneContext) => {
-  tabs.value = pane.props.name as number
+const tableLoading = ref<boolean>(false)
+const total = ref<number>(0)
+const tableData = ref<Attendance[]>([])
+const query: QueryAttendance = reactive({
+  currentPage: 1,
+  pageSize: 10
+})
+const getAttendancePageList = async () => {
+  tableLoading.value = true
+  setTimeout(async () => {
+    const { data } = await getAttendancePage(query)
+    tableData.value = cloneDeep(data.data.record)
+    total.value = JSON.parse(data.data.total)
+    tableLoading.value = false
+  }, randomTimeout(5, 500))
 }
-
-const getCourseStudent = async () => {
-  const { data } = await getCourseStudentInfo()
+onMounted(() => getAttendancePageList())
+const handleEndAttendance = async (row: Attendance) => {
+  row.is_end = true
+  const { data } = await updateAttendance(row)
   if (data.code === 200) {
-    alert('获取成功')
+    ElNotification.success('已结束')
+    await getAttendancePageList()
+    return
   }
+  ElNotification.error('操作失败，请重试！')
 }
+const handleCurrentChange = (currentPage: number) =>
+  (query.currentPage = currentPage)
+
+const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
+
+const detailDialog = ref<boolean>(false)
+const tabQuery: QueryAttendance = reactive({
+  active: 1,
+  currentPage: 1,
+  pageSize: 10
+})
+const tabData = ref<StudentAttendanceRecord[]>([])
+const tabTotal = ref<number>(0)
+const tabLoading = ref<boolean>(false)
+const setTabDialog = async (row: Attendance) => {
+  detailDialog.value = true
+  tabQuery.attendance_id = row.attendance_id
+  await handleAttendanceDetail()
+}
+const handleAttendanceDetail = async () => {
+  tabLoading.value = true
+  setTimeout(async () => {
+    const { data } = await getStudentCheckedPage(tabQuery)
+    tabData.value = cloneDeep(data.data.record)
+    tabTotal.value = JSON.parse(data.data.total)
+    tabLoading.value = false
+  }, randomTimeout(5, 500))
+}
+const handleTabCurrentChange = (currentPage: number) =>
+  (tabQuery.currentPage = currentPage)
+
+const handleTabSizeChange = (pageSize: number) => (tabQuery.pageSize = pageSize)
+watch(
+  () => tabQuery.active,
+  async () => {
+    await handleAttendanceDetail()
+    tabQuery.currentPage = 1
+    tabQuery.pageSize = 10
+  }
+)
+
+const openConfirm = () => {}
 </script>
 
 <template>
+  <el-dialog
+    v-model="detailDialog"
+    title="签到详情"
+    width="60%"
+    :close-on-click-modal="false"
+  >
+    <el-tabs v-model="tabQuery.active">
+      <el-tab-pane label="已签到" :name="1">
+        <el-table :data="tabData">
+          <el-table-column
+            prop="real_name"
+            label="学生姓名"
+            width="auto"
+            align="center"
+          />
+          <el-table-column label="性别" width="auto" align="center">
+            <template #default="{ row }">
+              {{ row.gender === 1 ? '男' : '女' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" width="auto" align="center">
+            <template #default="{ row }">
+              {{ row.attendance_type === 1 ? '已签到' : '未签到' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="签到时间" width="auto" align="center">
+            <template #default="{ row }">
+              {{ moment(row.attendance_time).format('YYYY-MM-DD HH:mm:ss') }}
+            </template>
+          </el-table-column>
+        </el-table>
+        <Pagination
+          :current-page="tabQuery.currentPage"
+          :page-size="tabQuery.pageSize"
+          :total="tabTotal"
+          @size-change="handleTabSizeChange"
+          @current-change="handleTabCurrentChange"
+        />
+      </el-tab-pane>
+      <el-tab-pane label="未签到" :name="2">
+        <el-table :data="tabData">
+          <el-table-column
+            prop="real_name"
+            label="学生姓名"
+            width="auto"
+            align="center"
+          />
+          <el-table-column label="性别" width="auto" align="center">
+            <template #default="{ row }">
+              {{ row.gender === 1 ? '男' : '女' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" width="auto" align="center">
+            <template #default="{ row }">
+              {{ row.attendance_type === 1 ? '已签到' : '未签到' }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="200">
+            <template #default="scope">
+              <el-button type="success" @click="openConfirm">
+                更改状态
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <Pagination
+          :current-page="tabQuery.currentPage"
+          :page-size="tabQuery.pageSize"
+          :total="tabTotal"
+          @size-change="handleTabSizeChange"
+          @current-change="handleTabCurrentChange"
+        />
+      </el-tab-pane>
+    </el-tabs>
+  </el-dialog>
+  <el-dialog> </el-dialog>
   <button @click.stop="setDialog" class="btn-grad">发布签到</button>
-  <el-tabs type="border-card" v-model="tabs" @tab-click="handleTabClick">
-    <el-tab-pane :name="1" label="已签到">
-      <el-table></el-table>
-    </el-tab-pane>
-    <el-tab-pane :name="2" label="未签到">未签到</el-tab-pane>
-    <el-tab-pane :name="3" label="历史记录">历史记录</el-tab-pane>
-  </el-tabs>
-  <!--对话框-->
+  <el-table v-loading="tableLoading" width="100%" :data="tableData">
+    <el-table-column prop="course.course_name" label="课程名称" width="auto" />
+    <el-table-column
+      prop="user.real_name"
+      label="任课教师"
+      width="auto"
+      align="center"
+    />
+    <el-table-column
+      prop="attendance_count"
+      label="已签人数"
+      width="auto"
+      align="center"
+    />
+    <el-table-column
+      prop="course_count"
+      label="课程人数"
+      width="auto"
+      align="center"
+    />
+    <el-table-column label="状态" width="auto" align="center">
+      <template #default="{ row }">
+        <el-tag :type="row.is_end ? 'success' : 'warning'">
+          {{ row.is_end ? '已结束' : '签到中' }}
+        </el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column label="发布时间" align="center" width="180">
+      <template #default="{ row }">
+        {{ moment(row.release_time).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" align="center" width="250">
+      <template #default="{ row }">
+        <el-button type="success" @click="setTabDialog(row)">
+          查看详情
+        </el-button>
+        <el-button
+          @click="handleEndAttendance(row)"
+          type="warning"
+          :disabled="row.is_end"
+        >
+          结束签到
+        </el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <Pagination
+    :current-page="query.currentPage"
+    :page-size="query.pageSize"
+    :total="total"
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
+  />
+
   <el-dialog
     v-model="dialog.show"
     :title="dialog.title"
-    width="40%"
+    width="20%"
     :close-on-click-modal="false"
   >
     <el-form
       ref="ruleFormRef"
       :model="dialogForm"
       :rules="rules"
-      status-icon
       label-width="80px"
     >
       <el-row :gutter="20">
-        <el-col :span="12">
+        <el-col :span="24">
           <el-form-item label="课程名称" prop="course_id">
             <el-select
               v-model="dialogForm.course_id"
@@ -124,7 +323,9 @@ const getCourseStudent = async () => {
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
           <el-form-item label="签到时长" prop="duration">
             <el-input type="number" v-model="temp.duration">
               <template #append>
@@ -132,6 +333,7 @@ const getCourseStudent = async () => {
                   v-model="temp.type"
                   placeholder="请选择"
                   style="width: 80px"
+                  clearable
                 >
                   <el-option label="秒钟" :value="1" />
                   <el-option label="分钟" :value="2" />

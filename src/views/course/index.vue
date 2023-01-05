@@ -19,6 +19,7 @@ import {
   updateCourse
 } from '../../api/course'
 import { getUserAll } from '../../api/user'
+import { randomTimeout } from '../../utils/common'
 
 // 初始化相关
 const tableData = ref<Course[]>([])
@@ -30,7 +31,7 @@ const getCourseListPage = async () => {
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
-  }, Math.floor(Math.random() * (500 - 10)) + 10)
+  }, randomTimeout(5, 500))
 }
 onMounted(() => getCourseListPage())
 
@@ -58,6 +59,22 @@ const rules = reactive<FormRules>({
       min: 5,
       max: 200,
       message: '课程人数介于5~200人',
+      trigger: 'blur'
+    }
+  ],
+  class_time: [
+    {
+      required: true,
+      type: 'number',
+      message: '课时不能为空',
+      trigger: 'blur'
+    },
+    {
+      required: true,
+      type: 'number',
+      min: 5,
+      max: 200,
+      message: '课时介于4~20之间',
       trigger: 'blur'
     }
   ]
@@ -223,7 +240,9 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
 watch(
   () => dialog,
   (newValue) => {
-    if (!newValue.show) ruleFormRef.value?.resetFields()
+    if (!newValue.show) {
+      ruleFormRef.value?.resetFields()
+    }
   },
   { deep: true }
 )
@@ -294,20 +313,21 @@ const getSelectUserList = (role: number) => {
   >
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="course_name" label="专业名称" width="auto" />
-    <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
-    <el-table-column prop="class_time" label="课时" width="auto" />
+    <el-table-column
+      prop="teacher.real_name"
+      label="任课教师"
+      width="auto"
+      align="center"
+    />
+    <el-table-column
+      prop="class_time"
+      label="课时"
+      width="auto"
+      align="center"
+    />
     <el-table-column label="已选" width="auto" align="center">
       <template #default="{ row }">
         <el-tag type="success"> {{ row.choice }}人</el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column label="剩余" v width="auto">
-      <template #default="{ row }">
-        <el-tag :type="row.count === row.choice ? 'danger' : 'success'">
-          {{
-            row.count === row.choice ? '已满' : `${row.count - row.choice}人`
-          }}
-        </el-tag>
       </template>
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
@@ -353,14 +373,13 @@ const getSelectUserList = (role: number) => {
   <el-dialog
     v-model="dialog.show"
     :title="dialog.title"
-    width="40%"
+    width="30%"
     :close-on-click-modal="false"
   >
     <el-form
       ref="ruleFormRef"
       :model="dialogForm"
       :rules="rules"
-      status-icon
       label-width="80px"
     >
       <el-row :gutter="20">

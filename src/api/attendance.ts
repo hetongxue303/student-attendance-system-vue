@@ -17,10 +17,18 @@ export const getStudentAttendancePage = (params: QueryAttendance) => {
     params
   })
 }
-export const getCourseStudentInfo = () => {
+export const getAttendancePage = (params: QueryAttendance) => {
   return axios({
     method: 'GET',
-    url: `${baseApi}/get/course/student/info`
+    url: `${baseApi}/attendance/get/page`,
+    params
+  })
+}
+export const getStudentCheckedPage = (params: QueryAttendance) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/attendance/student/page/checked`,
+    params
   })
 }
 

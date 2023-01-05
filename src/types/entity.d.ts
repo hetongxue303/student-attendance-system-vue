@@ -53,6 +53,18 @@ export interface Course {
   update_time?: Date
 }
 
+export interface StudentAttendanceRecord {
+  user_id?: number
+  avatar?: string
+  gender?: number
+  username?: string
+  real_name?: string
+  email?: string
+  phone?: string
+  attendance_type?: number
+  attendance_time?: Date
+}
+
 /**
  * 用户属性
  */
@@ -182,7 +194,10 @@ export interface QueryRole extends Role, Page {}
 
 export interface QueryMenu extends Menu, Page {}
 
-export interface QueryAttendance extends Attendance, Page {}
+export interface QueryAttendance extends Attendance, Page {
+  active?: number
+  attendance_id?: number
+}
 
 export interface QueryStudentAttendance extends StudentAttendanceDto, Page {}
 

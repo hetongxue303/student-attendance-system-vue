@@ -3,9 +3,10 @@ import Pagination from '../../components/Pagination/Index.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
-import { ElMessage, ElTable, FormInstance, FormRules } from 'element-plus'
+import { ElTable, FormInstance, FormRules } from 'element-plus'
 import { getStudentChoicePage } from '../../api/choice'
 import { Choice, QueryChoice } from '../../types/entity'
+import { randomTimeout } from '../../utils/common'
 
 const tableData = ref<Choice[]>([])
 const tableLoading = ref<boolean>(false)
@@ -16,7 +17,7 @@ const getStudentCourseListPage = async () => {
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
-  }, Math.floor(Math.random() * (500 - 10)) + 10)
+  }, randomTimeout(5, 500))
 }
 onMounted(() => getStudentCourseListPage())
 
@@ -34,15 +35,10 @@ const handleCurrentChange = (currentPage: number) =>
 
 const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
 
-const handleSearch = () => {
-  if (!query.course_name) {
-    ElMessage.info('请输入搜索内容...')
-    return
-  }
-  getStudentCourseListPage()
+const resetSearch = () => {
+  query.course_name = undefined
+  query.real_name = undefined
 }
-
-const resetSearch = () => (query.course_name = undefined)
 
 watch(
   () => query,
@@ -97,16 +93,13 @@ watch(
   <!--表格工具-->
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
-          v-model="query.status"
+          v-model="query.course_name"
           type="text"
-          placeholder="课程名称..."
+          placeholder="课程名称"
         />
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>
@@ -129,12 +122,16 @@ watch(
     />
     <el-table-column label="课时" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="success"> {{ row.course.class_time }}课时</el-tag>
+        <el-tag disable-transitions type="success">
+          {{ row.course.class_time }}课时
+        </el-tag>
       </template>
     </el-table-column>
     <el-table-column label="总人数" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag type="warning" effect="dark"> {{ row.course.count }}人</el-tag>
+        <el-tag disable-transitions type="warning" effect="dark">
+          {{ row.course.count }}人
+        </el-tag>
       </template>
     </el-table-column>
     <el-table-column prop="description" label="课程描述" width="auto" />

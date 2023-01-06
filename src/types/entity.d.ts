@@ -209,7 +209,11 @@ export interface QueryAttendance extends Attendance, Page {
   course_name?: string
 }
 
-export interface QueryStudentAttendance extends StudentAttendanceDto, Page {}
+export interface QueryStudentAttendance extends StudentAttendanceDto, Page {
+  course_name?: string
+  real_name?: string
+  status?: number
+}
 
 export interface QueryAttendanceRecord extends AttendanceRecord, Page {}
 

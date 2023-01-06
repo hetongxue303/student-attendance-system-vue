@@ -35,11 +35,11 @@ const handleCurrentChange = (currentPage: number) =>
 
 const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
 
-const handleSearch = () => {
-  getAttendanceListPage()
+const resetSearch = () => {
+  query.real_name = undefined
+  query.course_name = undefined
+  query.status = undefined
 }
-
-const resetSearch = () => {}
 
 watch(
   () => query,
@@ -75,16 +75,31 @@ const handleAttendanceEnd = async (type: number, row: StudentAttendanceDto) => {
 <template>
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
-          v-model="query.currentPage"
+          v-model="query.course_name"
           type="text"
-          placeholder="学院名称..."
+          placeholder="课程名称"
         />
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
+      <el-col :span="3">
+        <el-input
+          v-model="query.real_name"
+          type="text"
+          placeholder="教师名称"
+        />
+      </el-col>
+      <el-col :span="3">
+        <el-select
+          v-model="query.status"
+          placeholder="状态"
+          clearable
+          @clear="query.status = undefined"
+        >
+          <el-option label="签到中" :value="0" />
+          <el-option label="已结束" :value="1" />
+        </el-select>
+      </el-col>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>
@@ -105,19 +120,10 @@ const handleAttendanceEnd = async (type: number, row: StudentAttendanceDto) => {
     <el-table-column label="状态" align="center" width="auto">
       <template #default="{ row }">
         <el-tag
-          :type="
-            row.attendance.is_end ||
-            new Date().getTime() >= new Date(row.attendance.end_time).getTime()
-              ? 'success'
-              : 'warning'
-          "
+          disable-transitions
+          :type="row.attendance.is_end ? 'success' : 'warning'"
         >
-          {{
-            row.attendance.is_end ||
-            new Date().getTime() >= new Date(row.attendance.end_time).getTime()
-              ? '已结束'
-              : '签到中'
-          }}
+          {{ row.attendance.is_end ? '已结束' : '签到中' }}
         </el-tag>
       </template>
     </el-table-column>
@@ -134,11 +140,15 @@ const handleAttendanceEnd = async (type: number, row: StudentAttendanceDto) => {
     <el-table-column label="操作" align="center" width="200">
       <template #default="{ row }">
         <el-button
-          type="primary"
+          :type="
+            row.attendance.is_end || row.attendance_record
+              ? 'success'
+              : 'primary'
+          "
           @click="handleAttendanceEnd(1, row)"
           :disabled="row.attendance.is_end || row.attendance_record"
         >
-          签到
+          {{ row.attendance.is_end || row.attendance_record ? '已签' : '签到' }}
         </el-button>
       </template>
     </el-table-column>

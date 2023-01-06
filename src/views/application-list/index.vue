@@ -148,14 +148,25 @@ const handleRecord = async (result: boolean, row: Choice) => {
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="user.real_name" label="学生姓名" width="auto" />
     <el-table-column prop="course.course_name" label="课程名称" width="auto" />
-    <el-table-column label="状态" width="auto">
+    <el-table-column label="总人数" width="auto">
       <template #default="{ row }">
-        <el-tag type="warning" v-if="row.status === 0">待确认</el-tag>
-        <el-tag type="success" v-else-if="row.status === 1">已同意</el-tag>
-        <el-tag type="danger" v-else>已拒绝</el-tag>
+        <el-tag type="info" disable-transitions>
+          {{ row.course.count }}人
+        </el-tag>
       </template>
     </el-table-column>
-    <el-table-column label="申请时间" align="center" width="180">
+    <el-table-column label="状态" width="auto" align="center">
+      <template #default="{ row }">
+        <el-tag type="warning" disable-transitions v-if="row.status === 0">
+          待确认
+        </el-tag>
+        <el-tag type="success" disable-transitions v-else-if="row.status === 1">
+          已同意
+        </el-tag>
+        <el-tag type="danger" disable-transitions v-else> 已拒绝</el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column label="申请时间" align="center" width="auto">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>

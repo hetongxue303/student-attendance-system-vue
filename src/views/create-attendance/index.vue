@@ -46,6 +46,10 @@ const handleCreate = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
+      if (!temp.duration) {
+        ElMessage.warning('签到时长不能为空')
+        return
+      }
       dialogForm.release_time = new Date()
       dialogForm.end_time = handleTime(
         dialogForm.release_time.getTime(),
@@ -312,13 +316,12 @@ const resetSearch = () => {
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="签到时长" prop="duration">
-            <el-input type="number" v-model="temp.duration">
+            <el-input v-model="temp.duration" type="number">
               <template #append>
                 <el-select
                   v-model="temp.type"
                   placeholder="请选择"
                   style="width: 80px"
-                  clearable
                 >
                   <el-option label="秒钟" :value="1" />
                   <el-option label="分钟" :value="2" />
@@ -493,5 +496,14 @@ const resetSearch = () => {
   .search-box {
     margin-bottom: 15px;
   }
+}
+
+:deep(input::-webkit-outer-spin-button),
+:deep(input::-webkit-inner-spin-button) {
+  -webkit-appearance: none !important;
+}
+
+:deep(input[type='number']) {
+  -moz-appearance: textfield !important;
 }
 </style>

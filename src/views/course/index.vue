@@ -93,15 +93,6 @@ const handleCurrentChange = (currentPage: number) =>
 
 const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
 
-// 处理搜索
-const handleSearch = () => {
-  if (!query.course_name) {
-    ElMessage.info('请输入搜索内容...')
-    return
-  }
-  getCourseListPage()
-}
-
 // 重置搜索
 const resetSearch = () => (query.course_name = undefined)
 
@@ -241,7 +232,7 @@ watch(
   () => dialog,
   (newValue) => {
     if (!newValue.show) {
-      ruleFormRef.value?.resetFields()
+      dialogForm.value = { count: 5, class_time: 4 }
     }
   },
   { deep: true }
@@ -258,16 +249,13 @@ const getSelectUserList = (role: number) => {
   <!--表格工具-->
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
           v-model="query.course_name"
           type="text"
-          placeholder="课程名称..."
+          placeholder="课程名称"
         />
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>
@@ -373,7 +361,7 @@ const getSelectUserList = (role: number) => {
   <el-dialog
     v-model="dialog.show"
     :title="dialog.title"
-    width="30%"
+    width="25%"
     :close-on-click-modal="false"
   >
     <el-form
@@ -449,7 +437,7 @@ const getSelectUserList = (role: number) => {
             <el-input
               v-model="dialogForm.description"
               type="textarea"
-              :rows="5"
+              :rows="3"
               resize="none"
               placeholder="课程描述(默认：空)"
             />

@@ -18,6 +18,7 @@ import {
   getMajorPage,
   updateMajor
 } from '../../../api/major'
+import { randomTimeout } from '../../../utils/common'
 
 // 初始化相关
 const tableData = ref<Major[]>([])
@@ -29,7 +30,7 @@ const getMajorListPage = async () => {
     tableData.value = cloneDeep(data.data.record)
     total.value = JSON.parse(data.data.total)
     tableLoading.value = false
-  }, Math.floor(Math.random() * (500 - 10)) + 10)
+  }, randomTimeout(5, 500))
 }
 onMounted(() => getMajorListPage())
 
@@ -58,15 +59,6 @@ const handleCurrentChange = (currentPage: number) =>
   (query.currentPage = currentPage)
 
 const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
-
-// 处理搜索
-const handleSearch = () => {
-  if (!query.major_name) {
-    ElMessage.info('请输入搜索内容...')
-    return
-  }
-  getMajorListPage()
-}
 
 // 重置搜索
 const resetSearch = () => (query.major_name = undefined)
@@ -205,7 +197,7 @@ const handleOperate = async (formEl: FormInstance | undefined) => {
 watch(
   () => dialog,
   (newValue) => {
-    if (!newValue.show) ruleFormRef.value?.resetFields()
+    if (!newValue.show) dialogForm.value = {}
   },
   { deep: true }
 )
@@ -215,16 +207,13 @@ watch(
   <!--表格工具-->
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
           v-model="query.major_name"
           type="text"
-          placeholder="学院名称..."
+          placeholder="学院名称"
         />
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>
@@ -308,7 +297,7 @@ watch(
   <el-dialog
     v-model="dialog.show"
     :title="dialog.title"
-    width="40%"
+    width="25%"
     :close-on-click-modal="false"
   >
     <el-form
@@ -335,7 +324,7 @@ watch(
             <el-input
               v-model="dialogForm.description"
               type="textarea"
-              :rows="5"
+              :rows="3"
               resize="none"
               placeholder="专业描述(默认：空)"
             />

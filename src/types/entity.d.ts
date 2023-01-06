@@ -53,6 +53,13 @@ export interface Course {
   update_time?: Date
 }
 
+export interface updateAttendanceStatusVo {
+  attendance_type?: number
+  description?: string
+  user_id?: number
+  attendance_id?: number
+}
+
 export interface StudentAttendanceRecord {
   user_id?: number
   avatar?: string
@@ -61,6 +68,7 @@ export interface StudentAttendanceRecord {
   real_name?: string
   email?: string
   phone?: string
+  attendance_id?: number
   attendance_type?: number
   attendance_time?: Date
 }
@@ -197,6 +205,8 @@ export interface QueryMenu extends Menu, Page {}
 export interface QueryAttendance extends Attendance, Page {
   active?: number
   attendance_id?: number
+  is_end?: number
+  course_name?: string
 }
 
 export interface QueryStudentAttendance extends StudentAttendanceDto, Page {}

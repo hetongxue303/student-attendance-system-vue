@@ -68,6 +68,7 @@ module.exports = {
     'no-alert': 0,
     'no-console': 0,
     'no-redeclare': 0,
+    'no-return-await': 0,
     'no-import-assign': 0,
     'no-return-assign': 0,
     'no-param-reassign': 0,

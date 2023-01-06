@@ -1,5 +1,9 @@
 import axios from '../utils/request'
-import { Attendance, QueryAttendance } from '../types/entity'
+import {
+  Attendance,
+  QueryAttendance,
+  updateAttendanceStatusVo
+} from '../types/entity'
 
 const baseApi = import.meta.env.VITE_BASIC_API
 
@@ -43,5 +47,14 @@ export const delAttendance = (id: number) => {
   return axios({
     method: 'DELETE',
     url: `${baseApi}/attendance/delete/${id}`
+  })
+}
+export const updateStudentAttendanceDetail = (
+  data: updateAttendanceStatusVo
+) => {
+  return axios({
+    method: 'PUT',
+    url: `${baseApi}/attendance/update/student`,
+    data
   })
 }

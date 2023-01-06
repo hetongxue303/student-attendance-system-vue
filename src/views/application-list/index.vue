@@ -27,24 +27,16 @@ const real_name = ref<string | undefined>(undefined)
 const course_name = ref<string | undefined>(undefined)
 const query: QueryChoice = reactive({
   currentPage: 1,
-  pageSize: 10,
-  status: 0
+  pageSize: 10
 })
 const total = ref<number>(0)
 const handleCurrentChange = (currentPage: number) =>
   (query.currentPage = currentPage)
 const handleSizeChange = (pageSize: number) => (query.pageSize = pageSize)
-const handleSearch = () => {
-  if (!query.status || !query.real_name || !query.course_name) {
-    ElMessage.info('请输入搜索内容...')
-    return
-  }
-  getChoiceListPage()
-}
 const resetSearch = () => {
   query.status = undefined
-  real_name.value = undefined
-  course_name.value = undefined
+  query.real_name = undefined
+  query.course_name = undefined
 }
 watch(
   () => query,
@@ -97,14 +89,14 @@ const handleRecord = async (result: boolean, row: Choice) => {
   <!--表格工具-->
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
           v-model="query.real_name"
           type="text"
           placeholder="学生姓名"
         />
       </el-col>
-      <el-col :span="4">
+      <el-col :span="3">
         <el-input
           v-model="query.course_name"
           type="text"
@@ -123,9 +115,6 @@ const handleRecord = async (result: boolean, row: Choice) => {
           <el-option label="已拒绝" :value="2" />
         </el-select>
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>

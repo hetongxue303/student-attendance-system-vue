@@ -221,3 +221,5 @@ export interface QueryChoice extends Choice, Page {
   real_name?: string
   course_name?: string
 }
+
+export interface IndexVo {}

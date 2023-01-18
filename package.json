@@ -31,6 +31,7 @@
     "@vueuse/integrations": "^9.6.0",
     "animate.css": "^4.1.1",
     "axios": "^1.2.0",
+    "echarts": "^5.4.1",
     "element-plus": "^2.2.25",
     "js-md5": "^0.7.3",
     "jsencrypt": "^3.3.1",

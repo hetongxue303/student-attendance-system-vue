@@ -64,15 +64,19 @@ export const delBatchUser = (data: Array<number>) => {
   })
 }
 
-export const updateEmail = (data: up_email) => {
+export const getUserCenter = (username: string) => {
   return axios({
-    method: 'PUT',
-    url: `${baseApi}/user/update/email`,
-    data
+    method: 'GET',
+    url: `${baseApi}/user/center`,
+    params: { username }
   })
 }
 
-export const updatePassword = (data: up_password) => {
+export const updateUserPassword = (info: any) => {
+  const data = {
+    old_password: encryptMD5(info.oldPassword),
+    new_password: encryptMD5(info.newPassword)
+  }
   return axios({
     method: 'PUT',
     url: `${baseApi}/user/update/password`,

@@ -4,6 +4,8 @@ import { getToken, removeToken, removeTokenTime } from '../../utils/auth'
 import { local, session } from '../../utils/storage'
 import { usePermissionStore } from './permission'
 import { filterMenu } from '../../filter/menu'
+import { useTabStore } from './tab'
+import { useAppStore } from './app'
 
 export const useUserStore = defineStore('user', {
   state: (): UserStore => {
@@ -40,11 +42,19 @@ export const useUserStore = defineStore('user', {
       permissionStore.permissions = permissions
     },
     systemLogout() {
-      this.$reset()
       removeToken()
       removeTokenTime()
+      usePermissionStore().$reset()
+      useTabStore().$reset()
+      useAppStore().$reset()
       session.clear()
       local.clear()
+      this.$reset()
+    },
+    fedLogOut() {
+      removeToken()
+      removeTokenTime()
+      this.$reset()
     }
   },
   persist: {

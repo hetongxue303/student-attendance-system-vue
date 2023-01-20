@@ -43,6 +43,7 @@ const handlerLogout = async () => {
         cookies.remove(settings.AUTHORIZATION_KEY)
         ElMessage.success('注销成功')
         window.location.replace('/login')
+        window.location.reload()
         break
       default:
         ElMessage.error('注销失败')

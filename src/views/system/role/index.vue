@@ -158,16 +158,8 @@ const handleBatchDelete = async () => {
 const handleExport = () => {
   ElMessage.warning('待完善')
 }
-const handleSearch = () => {
-  if (!query.role_name) {
-    ElMessage.warning('请选择搜索内容...')
-    return
-  }
-  getRoleListPage()
-}
 const resetSearch = () => {
   query.role_name = undefined
-  getRoleListPage()
 }
 const handleSwitchChange = (role: Role) => {
   switchLoading.value = true
@@ -299,9 +291,6 @@ watch(
           placeholder="角色名称"
         />
       </el-col>
-      <el-button icon="Search" type="success" @click="handleSearch">
-        搜索
-      </el-button>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置
       </el-button>

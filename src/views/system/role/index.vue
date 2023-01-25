@@ -203,7 +203,6 @@ onMounted(() => getRoleListPage())
 /*菜单分配相关*/
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import { getMenuLazyTree, getOneMenuByRoleId } from '../../../api/menu'
-import { TreeNodeData } from 'element-plus/lib/components/tree/src/tree.type'
 
 const saveDisabled = ref<boolean>(false)
 const menuTreeRef = ref<InstanceType<typeof ElTree>>()

@@ -21,6 +21,12 @@ export const getStudentAttendancePage = (params: QueryAttendance) => {
     params
   })
 }
+export const getAttendanceById = (id: number) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/attendance/get/id/${id}`
+  })
+}
 export const getAttendancePage = (params: QueryAttendance) => {
   return axios({
     method: 'GET',

@@ -4,7 +4,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
 import { Choice, QueryChoice } from '../../types/entity'
-import { ElMessage, ElMessageBox, ElNotification, ElTable } from 'element-plus'
+import { ElMessageBox, ElNotification, ElTable } from 'element-plus'
 import {
   getChoicePage,
   updateBatchChoice,
@@ -23,8 +23,6 @@ const getChoiceListPage = async () => {
   }, Math.floor(Math.random() * (500 - 10)) + 10)
 }
 onMounted(() => getChoiceListPage())
-const real_name = ref<string | undefined>(undefined)
-const course_name = ref<string | undefined>(undefined)
 const query: QueryChoice = reactive({
   currentPage: 1,
   pageSize: 10
@@ -123,14 +121,22 @@ const handleRecord = async (result: boolean, row: Choice) => {
       <el-button
         type="primary"
         @click="handleBatchRecord(true)"
-        :disabled="multipleSelection.length === 0"
+        :disabled="
+          multipleSelection.length === 0 ||
+          query.status === undefined ||
+          query.status === 0
+        "
       >
         同意
       </el-button>
       <el-button
         type="danger"
         @click="handleBatchRecord(false)"
-        :disabled="multipleSelection.length === 0"
+        :disabled="
+          multipleSelection.length === 0 ||
+          query.status === undefined ||
+          query.status === 0
+        "
       >
         拒绝
       </el-button>
@@ -145,7 +151,12 @@ const handleRecord = async (result: boolean, row: Choice) => {
     @selection-change="handleSelectionChange"
     v-loading="tableLoading"
   >
-    <el-table-column type="selection" width="50" align="center" />
+    <el-table-column
+      type="selection"
+      width="50"
+      align="center"
+      v-if="query.status === undefined || query.status === 0"
+    />
     <el-table-column prop="user.real_name" label="学生姓名" width="auto" />
     <el-table-column prop="course.course_name" label="课程名称" width="auto" />
     <el-table-column label="总人数" width="auto">
@@ -171,7 +182,12 @@ const handleRecord = async (result: boolean, row: Choice) => {
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
-    <el-table-column label="操作" align="center" width="200">
+    <el-table-column
+      label="操作"
+      align="center"
+      width="200"
+      v-if="query.status === undefined || query.status === 0"
+    >
       <template #default="{ row }">
         <el-button
           type="primary"

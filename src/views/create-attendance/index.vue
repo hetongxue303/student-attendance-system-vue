@@ -7,6 +7,7 @@ import { randomTimeout } from '../../utils/common'
 import moment from 'moment'
 import {
   addAttendance,
+  getAttendanceById,
   getAttendancePage,
   getStudentCheckedPage,
   updateAttendance,
@@ -21,6 +22,7 @@ import {
 } from '../../types/entity'
 import {
   ElMessage,
+  ElMessageBox,
   ElNotification,
   FormInstance,
   FormRules
@@ -46,10 +48,7 @@ const handleCreate = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
-      if (!temp.duration) {
-        ElMessage.warning('签到时长不能为空')
-        return
-      }
+      if (!temp.duration) temp.duration = 10
       dialogForm.release_time = new Date()
       dialogForm.end_time = handleTime(
         dialogForm.release_time.getTime(),
@@ -116,14 +115,41 @@ const getAttendancePageList = async () => {
 }
 onMounted(() => getAttendancePageList())
 const handleEndAttendance = async (row: Attendance) => {
-  row.is_end = true
-  const { data } = await updateAttendance(row)
-  if (data.code === 200) {
-    ElNotification.success('已结束')
-    await getAttendancePageList()
-    return
+  const { data } = await getAttendanceById(row.attendance_id as number)
+  if (data.data.attendance_count < data.data.course_count) {
+    const temp: Attendance = data.data
+    ElMessageBox.confirm(
+      `还有${
+        (temp.course_count as number) - (temp.attendance_count as number)
+      }个同学没签到，是否结束签到?`,
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    ).then(() => {
+      row.is_end = true
+      updateAttendance(row).then(async ({ data }) => {
+        if (data.code === 200) {
+          ElNotification.success('已结束')
+          await getAttendancePageList()
+          return
+        }
+        ElNotification.error('操作失败，请重试！')
+      })
+    })
+  } else {
+    row.is_end = true
+    updateAttendance(row).then(async ({ data }) => {
+      if (data.code === 200) {
+        ElNotification.success('已结束')
+        await getAttendancePageList()
+        return
+      }
+      ElNotification.error('操作失败，请重试！')
+    })
   }
-  ElNotification.error('操作失败，请重试！')
 }
 const handleCurrentChange = (currentPage: number) =>
   (query.currentPage = currentPage)
@@ -152,6 +178,10 @@ const setTabDialog = async (row: Attendance) => {
   tabQuery.active = 1
   await handleAttendanceDetailList()
 }
+watch(
+  () => detailDialog.value,
+  async (value) => (!value ? await getAttendancePageList() : null)
+)
 const handleAttendanceDetailList = async () => {
   tabLoading.value = true
   setTimeout(async () => {
@@ -197,7 +227,7 @@ const updateAttendanceStatus = async () => {
   }
   ElMessage.error('更改失败，请重试！')
 }
-const handleClose = async () => await handleAttendanceDetailList()
+const handleClose = () => handleAttendanceDetailList()
 const resetSearch = () => {
   query.course_name = undefined
   query.is_end = undefined
@@ -215,7 +245,12 @@ const resetSearch = () => {
         />
       </el-col>
       <el-col :span="3">
-        <el-select v-model="query.is_end" placeholder="状态">
+        <el-select
+          v-model="query.is_end"
+          placeholder="状态"
+          clearable
+          @clear="query.is_end = undefined"
+        >
           <el-option label="签到中" :value="0" />
           <el-option label="已结束" :value="1" />
         </el-select>
@@ -262,9 +297,16 @@ const resetSearch = () => {
     </el-table-column>
     <el-table-column label="操作" align="center" width="200">
       <template #default="{ row }">
-        <el-button type="success" @click="setTabDialog(row)"> 查看</el-button>
+        <el-button
+          type="success"
+          @click="setTabDialog(row)"
+          v-show="query.is_end === 1 || query.is_end === undefined"
+        >
+          查看
+        </el-button>
         <el-button
           @click="handleEndAttendance(row)"
+          v-show="query.is_end === 0 || query.is_end === undefined"
           type="warning"
           :disabled="row.is_end"
         >
@@ -284,7 +326,7 @@ const resetSearch = () => {
   <el-dialog
     v-model="dialog.show"
     :title="dialog.title"
-    width="20%"
+    width="25%"
     :close-on-click-modal="false"
   >
     <el-form
@@ -316,7 +358,11 @@ const resetSearch = () => {
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="签到时长" prop="duration">
-            <el-input v-model="temp.duration" type="number">
+            <el-input
+              v-model="temp.duration"
+              type="number"
+              placeholder="默认：10"
+            >
               <template #append>
                 <el-select
                   v-model="temp.type"

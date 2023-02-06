@@ -219,7 +219,12 @@ watch(
       </el-button>
     </el-row>
     <div class="operate-box">
-      <el-button icon="Plus" type="primary" @click="setDialog('insert')">
+      <el-button
+        icon="Plus"
+        type="primary"
+        @click="setDialog('insert')"
+        v-role="['admin']"
+      >
         新增
       </el-button>
       <el-button
@@ -227,6 +232,7 @@ watch(
         :disabled="disabled.edit"
         type="success"
         @click="setDialog('update')"
+        v-role="['admin']"
       >
         修改
       </el-button>
@@ -235,6 +241,7 @@ watch(
         :disabled="disabled.delete"
         type="danger"
         @click="handleBatchDelete"
+        v-role="['admin']"
       >
         删除
       </el-button>
@@ -260,12 +267,17 @@ watch(
     <el-table-column type="selection" width="50" align="center" />
     <el-table-column prop="major_name" label="专业名称" width="auto" />
     <el-table-column prop="description" label="专业描述" width="auto" />
-    <el-table-column label="创建时间" align="center" width="180">
+    <el-table-column label="申请时间" align="center" width="180">
       <template #default="{ row }">
         {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
-    <el-table-column label="操作" align="center" width="200">
+    <el-table-column label="更新时间" align="center" width="180">
+      <template #default="{ row }">
+        {{ moment(row.update_time).format('YYYY-MM-DD HH:mm:ss') }}
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" align="center" width="200" v-role="['admin']">
       <template #default="scope">
         <el-button
           icon="EditPen"

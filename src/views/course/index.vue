@@ -72,8 +72,8 @@ const rules = reactive<FormRules>({
     {
       required: true,
       type: 'number',
-      min: 5,
-      max: 200,
+      min: 4,
+      max: 20,
       message: '课时介于4~20之间',
       trigger: 'blur'
     }

@@ -26,8 +26,16 @@ import { useUserStore } from '../../../store/modules/user'
 import { logout } from '../../../api/login'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { settings } from '../../../settings'
+import { computed } from 'vue'
+import { getUserByUsername } from '../../../api/user'
 
 const userStore = useUserStore()
+const realName = computed(() => {
+  getUserByUsername(userStore.username).then(({ data }) => {
+    if (data.code === 200) return data.data.real_name
+    return '未知用户'
+  })
+})
 
 const handlerLogout = async () => {
   ElMessageBox.confirm('您确认要退出系统吗?', '提示', {

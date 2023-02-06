@@ -52,13 +52,13 @@ watch(
 )
 
 // 处理选课/退课
-const handleCourseChoice = async (row: Course) => {
-  if (row.count === row.choice) {
+const handleCourseChoice = async (row: any) => {
+  if (row.course.count === row.course.choice) {
     ElMessage.warning('课程已满')
     return
   }
   ElMessageBox.confirm(
-    `确认选择 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
+    `确认选择 ${row.course.teacher?.real_name}老师 的《${row.course.course_name}》课程吗?`,
     '提示',
     {
       confirmButtonText: '确定',
@@ -66,7 +66,7 @@ const handleCourseChoice = async (row: Course) => {
       type: 'warning'
     }
   ).then(async () => {
-    const { data } = await updateCourseChoice(row.course_id as number)
+    const { data } = await updateCourseChoice(row.course.course_id as number)
     if (data.code === 200) {
       ElNotification.success('选课成功')
       await getCourseListPage()
@@ -75,9 +75,9 @@ const handleCourseChoice = async (row: Course) => {
     ElNotification.success('选课失败，请重试！')
   })
 }
-const handleCourseQuit = (row: Course) => {
+const handleCourseQuit = (row: any) => {
   ElMessageBox.confirm(
-    `确认退选 ${row.teacher?.real_name}老师 的《${row.course_name}》课程吗?`,
+    `确认退选 ${row.course.teacher?.real_name}老师 的《${row.course.course_name}》课程吗?`,
     '提示',
     {
       confirmButtonText: '确定',
@@ -85,7 +85,7 @@ const handleCourseQuit = (row: Course) => {
       type: 'warning'
     }
   ).then(async () => {
-    const { data } = await updateCourseQuit(row.course_id as number)
+    const { data } = await updateCourseQuit(row.course.course_id as number)
     if (data.code === 200) {
       ElNotification.success('退选成功')
       await getCourseListPage()
@@ -115,22 +115,30 @@ const handleCourseQuit = (row: Course) => {
 
   <!--表格-->
   <el-table :data="tableData" width="100%" v-loading="tableLoading">
-    <el-table-column prop="course_name" label="课程名称" width="auto" />
-    <el-table-column prop="teacher.real_name" label="任课教师" width="auto" />
-    <el-table-column prop="class_time" label="课时" width="auto" />
+    <el-table-column prop="course.course_name" label="课程名称" width="auto" />
+    <el-table-column
+      prop="course.teacher.real_name"
+      label="任课教师"
+      width="auto"
+    />
+    <el-table-column prop="course.class_time" label="课时" width="auto" />
     <el-table-column label="已选" width="auto" align="center">
       <template #default="{ row }">
-        <el-tag disable-transitions type="info"> {{ row.choice }}人</el-tag>
+        <el-tag disable-transitions type="info">
+          {{ row.course.choice }}人
+        </el-tag>
       </template>
     </el-table-column>
     <el-table-column label="剩余" v width="auto">
       <template #default="{ row }">
         <el-tag
           disable-transitions
-          :type="row.count === row.choice ? 'danger' : 'info'"
+          :type="row.course.count === row.course.choice ? 'danger' : 'info'"
         >
           {{
-            row.count === row.choice ? '已满' : `${row.count - row.choice}人`
+            row.course.count === row.course.choice
+              ? '已满'
+              : `${row.course.count - row.course.choice}人`
           }}
         </el-tag>
       </template>
@@ -138,26 +146,30 @@ const handleCourseQuit = (row: Course) => {
     <el-table-column label="总人数" width="auto" align="center">
       <template #default="{ row }">
         <el-tag disable-transitions type="info" effect="dark">
-          {{ row.count }}人
+          {{ row.course.count }}人
         </el-tag>
       </template>
     </el-table-column>
-    <el-table-column prop="description" label="课程描述" width="auto" />
+    <el-table-column prop="course.description" label="课程描述" width="auto" />
     <el-table-column label="发布时间" align="center" width="180">
       <template #default="{ row }">
-        {{ moment(row.create_time).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ moment(row.course.create_time).format('YYYY-MM-DD HH:mm:ss') }}
       </template>
     </el-table-column>
     <el-table-column label="操作" align="center" width="200">
       <template #default="{ row }">
         <el-button
-          type="primary"
-          :disabled="row.count === row.choice"
+          :type="row.is_choice ? 'success' : 'primary'"
+          :disabled="row.course.count === row.course.choice || row.is_choice"
           @click="handleCourseChoice(row)"
         >
-          选择
+          {{ row.is_choice ? '已选' : '选择' }}
         </el-button>
-        <el-button type="danger" @click="handleCourseQuit(row)">
+        <el-button
+          type="danger"
+          @click="handleCourseQuit(row)"
+          :disabled="!row.is_choice"
+        >
           退选
         </el-button>
       </template>

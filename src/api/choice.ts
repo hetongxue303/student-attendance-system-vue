@@ -51,6 +51,12 @@ export const getChoicePage = (params: QueryChoice) => {
     params
   })
 }
+export const getChoiceByCourseId = (course_id: number) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/choice/get/course_id/${course_id}`
+  })
+}
 export const getStudentChoicePage = (params: QueryChoice) => {
   return axios({
     method: 'GET',

@@ -81,6 +81,8 @@ module.exports = {
     'vue/multi-word-component-names': 0,
     'vue/no-unused-vars': 0,
     'vue/no-parsing-error': 0,
+    'vue/return-in-computed-property': 0,
+    'vue/no-async-in-computed-properties': 0,
     'vue/attributes-order': 0,
     'consistent-return': 0,
     'default-case': 0,

@@ -23,6 +23,12 @@ export const getUserAll = (role: number) => {
     url: `${baseApi}/user/get/all/${role}`
   })
 }
+export const getUserByUsername = (username: string) => {
+  return axios({
+    method: 'GET',
+    url: `${baseApi}/user/get/username/${username}`
+  })
+}
 export const getUserPage = (params: QueryUser) => {
   return axios({
     method: 'GET',

@@ -6,14 +6,14 @@
       :index="item.path"
     >
       <template #title>
-        <svg-icon :name="item.icon" />
+        <svg-icon :mr="10" :name="item.icon" />
         <span>{{ item.name }}</span>
       </template>
       <MenuItem :data="item.children" />
     </el-sub-menu>
     <!--无子组件时-->
     <el-menu-item v-else :index="item.path">
-      <svg-icon :name="item.icon" />
+      <svg-icon :mr="10" :name="item.icon" />
       <template #title>{{ item.name }}</template>
     </el-menu-item>
   </template>

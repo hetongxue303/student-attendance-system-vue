@@ -7,8 +7,8 @@
       height: size + 'em',
       width: size + 'em',
       fill: fill,
-      'margin-right': mr + 'px',
-      'margin-left': ml + 'px'
+      marginRight: mr + 'px',
+      marginLeft: ml + 'px'
     }"
   >
     <use :xlink:href="symbolId" />
@@ -16,17 +16,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from 'vue'
+import { computed } from 'vue'
 
-const props = defineProps({
-  prefix: { type: String as PropType<string>, default: 'icon' },
-  name: { type: String as PropType<string>, required: true },
-  color: { type: String as PropType<string>, default: '' },
-  size: { type: Number as PropType<number>, default: 1.2 },
-  fill: { type: String as PropType<string>, default: 'currentColor' },
-  ml: { type: Number as PropType<number>, default: 0 },
-  mr: { type: Number as PropType<number>, default: 10 }
-})
+const props = withDefaults(
+  defineProps<{
+    prefix?: string
+    name: string
+    color?: string
+    size?: number
+    fill?: string
+    ml?: number
+    mr?: number
+  }>(),
+  {
+    prefix: 'icon',
+    color: '',
+    size: 1.2,
+    fill: 'currentColor',
+    ml: 0,
+    mr: 0
+  }
+)
 
 const symbolId = computed(() => `#${props.prefix}-${props.name}`)
 </script>

@@ -1,107 +1,114 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getCaptcha, login } from '../api/login'
-import { ElMessage, FormInstance, FormRules } from 'element-plus'
+import { ElMessage, ElNotification, FormInstance } from 'element-plus'
 import { encryptMD5 } from '../hook/encryptMD5'
-import { getToken, setToken, setTokenTime } from '../utils/auth'
 import { useRoute, useRouter } from 'vue-router'
 import { ILogin } from '../types/entity'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { decrypt, encrypt } from '../utils/jsencrypt'
 import { useUserStore } from '../store/modules/user'
+import { DURATION_TIME } from '../settings'
 
 const route = useRoute()
 const router = useRouter()
 const cookie = useCookies()
 const userStore = useUserStore()
-
 const ruleFormRef = ref<FormInstance>()
-const rules = reactive<FormRules>({
-  username: [{ required: true, message: '账号不能为空', trigger: 'blur' }],
-  password: [{ required: true, message: '密码不能为空', trigger: 'blur' }],
-  code: [{ required: true, message: '验证码不能为空', trigger: 'blur' }]
-})
-
-const formData: ILogin = reactive({
+const loading = ref(false)
+const imgUrl = ref('')
+const redirect = ref('')
+const loginFrom: ILogin = reactive({
   username: '',
   password: '',
   code: '',
   rememberMe: false
 })
 
-const pageData = reactive({
-  loading: false,
-  imgUrl: '',
-  redirect: ''
-})
-
-const refreshCaptcha = async () => {
-  const { data } = await getCaptcha()
-  if (data.code === 200) {
-    pageData.imgUrl = data.data
-  }
+enum userinfo {
+  username = 'username',
+  password = 'password',
+  rememberMe = 'rememberMe'
 }
 
-const loginHandler = async (formEl: FormInstance | undefined) => {
+const getCookie = () => {
+  loginFrom.username = cookie.get(userinfo.username)
+  loginFrom.password = cookie.get(userinfo.password)
+    ? decrypt(cookie.get(userinfo.password))
+    : ''
+  loginFrom.rememberMe = Boolean(cookie.get(userinfo.rememberMe))
+}
+const refreshCaptcha = () =>
+  getCaptcha().then(({ data }) => (imgUrl.value = data.data))
+const handleRememberMe = (status: boolean) => {
+  if (status) {
+    const expires: Date = new Date(new Date().getTime() + 60 * 60 * 1000)
+    cookie.remove(userinfo.username)
+    cookie.remove(userinfo.password)
+    cookie.remove(userinfo.rememberMe)
+    cookie.set(userinfo.username, loginFrom.username, { expires })
+    cookie.set(userinfo.password, encrypt(loginFrom.password), { expires })
+    cookie.set(userinfo.rememberMe, loginFrom.rememberMe, { expires })
+  } else {
+    cookie.remove(userinfo.username)
+    cookie.remove(userinfo.password)
+    cookie.remove(userinfo.rememberMe)
+  }
+}
+const loginHandle = async (formEl?: FormInstance) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
-      pageData.loading = true
-      if (formData.rememberMe) {
-        const expires: Date = new Date(new Date().getTime() + 60 * 60 * 1000)
-        cookie.remove('username')
-        cookie.remove('password')
-        cookie.remove('rememberMe')
-        cookie.set('username', formData.username, { expires })
-        cookie.set('password', encrypt(formData.password), { expires })
-        cookie.set('rememberMe', formData.rememberMe, { expires })
-      } else {
-        cookie.remove('username')
-        cookie.remove('password')
-        cookie.remove('rememberMe')
-      }
-      const { data, status } = await login({
-        username: formData.username,
-        password: encryptMD5(formData.password),
-        code: formData.code,
-        rememberMe: formData.rememberMe
+      loading.value = true
+      handleRememberMe(loginFrom.rememberMe)
+      login({
+        username: loginFrom.username,
+        password: encryptMD5(loginFrom.password),
+        code: loginFrom.code,
+        rememberMe: loginFrom.rememberMe
       })
-      if (data.code === 200 && status === 200) {
-        setToken(`bearer ${data.access_token}`)
-        setTokenTime(new Date().getTime() + data.expire_time)
-        userStore.setUserInfo(data)
-        ElMessage.success('登陆成功')
-        await router.push(pageData.redirect || '/')
-      } else {
-        formData.code = ''
-        await refreshCaptcha()
-        ElMessage.warning(data.message || '登陆失败，请重试！')
-      }
-      pageData.loading = false
-    } else {
-      return false
+        .then(({ data, status }) => {
+          if (data.code === 200 && status === 200) {
+            userStore.setUserInfo(data)
+            ElNotification.success({
+              message: '登陆成功',
+              duration: DURATION_TIME
+            })
+            router.push(redirect.value || '/')
+          } else {
+            loginFrom.code = ''
+            refreshCaptcha()
+            ElMessage.warning({
+              message: data.message || '登陆失败，请重试！',
+              duration: DURATION_TIME
+            })
+          }
+        })
+        .catch(({ response }) => {
+          loginFrom.code = ''
+          refreshCaptcha()
+          ElMessage.error({
+            message: response.data.message,
+            duration: DURATION_TIME
+          })
+        })
+        .finally(() => (loading.value = false))
     }
   })
 }
 
 watch(
-  () => pageData.imgUrl,
-  () => (formData.code = ''),
+  () => imgUrl.value,
+  () => (loginFrom.code = ''),
   { deep: true }
 )
 
 watch(
   () => route,
-  () => (pageData.redirect = route.query && (route.query.redirect as string)),
-  { immediate: true }
+  () => (redirect.value = route.query && (route.query.redirect as string)),
+  { deep: true, immediate: true }
 )
-const getCookie = async () => {
-  formData.username = cookie.get('username')
-  formData.password = cookie.get('password')
-    ? decrypt(cookie.get('password'))
-    : ''
-  formData.rememberMe = Boolean(cookie.get('rememberMe'))
-}
+
 onMounted(() => {
   refreshCaptcha()
   getCookie()
@@ -119,39 +126,59 @@ onMounted(() => {
           <span>账号密码登录</span>
           <span class="right-box-line" />
         </div>
-        <el-form ref="ruleFormRef" :model="formData" :rules="rules">
-          <el-form-item prop="username">
+        <el-form ref="ruleFormRef" :model="loginFrom">
+          <el-form-item
+            prop="username"
+            :rules="{
+              required: true,
+              message: '账号不能为空',
+              trigger: 'blur'
+            }"
+          >
             <el-input
-              v-model="formData.username"
+              v-model="loginFrom.username"
               prefix-icon="user"
               placeholder="账号"
-              size="default"
             />
           </el-form-item>
-          <el-form-item prop="password">
+          <el-form-item
+            prop="password"
+            :rules="{
+              required: true,
+              message: '密码不能为空',
+              trigger: 'blur'
+            }"
+          >
             <el-input
-              v-model="formData.password"
+              v-model="loginFrom.password"
               placeholder="密码"
               show-password
-              @keyup.enter="loginHandler(ruleFormRef)"
+              @keyup.enter="loginHandle(ruleFormRef)"
               prefix-icon="lock"
               size="default"
             />
           </el-form-item>
-          <el-form-item prop="code">
+          <el-form-item
+            prop="code"
+            :rules="{
+              required: true,
+              message: '验证码不能为空',
+              trigger: 'blur'
+            }"
+          >
             <el-row :gutter="10" class="w-250px">
               <el-col :span="14" class="mr-3">
                 <el-input
                   size="default"
-                  v-model="formData.code"
+                  v-model="loginFrom.code"
                   placeholder="验证码"
-                  @keyup.enter="loginHandler(ruleFormRef)"
+                  @keyup.enter="loginHandle(ruleFormRef)"
                   prefix-icon="key"
                 />
               </el-col>
               <el-col :span="8" class="flex justify-center items-center">
                 <el-image
-                  :src="pageData.imgUrl"
+                  :src="imgUrl"
                   style="cursor: pointer; margin-top: 3px"
                   title="点击切换验证码"
                   @click.stop="refreshCaptcha"
@@ -160,19 +187,16 @@ onMounted(() => {
             </el-row>
           </el-form-item>
           <el-form-item>
-            <el-checkbox size="default" v-model="formData.rememberMe">
-              记住我
-            </el-checkbox>
+            <el-checkbox v-model="loginFrom.rememberMe"> 记住密码</el-checkbox>
           </el-form-item>
           <el-form-item>
             <el-button
-              size="default"
               type="primary"
-              :loading="pageData.loading"
-              @keyup.enter="loginHandler(ruleFormRef)"
-              @click="loginHandler(ruleFormRef)"
+              :loading="loading"
+              @keyup.enter="loginHandle(ruleFormRef)"
+              @click="loginHandle(ruleFormRef)"
             >
-              <span v-if="pageData.loading">登 陆 中...</span>
+              <span v-if="loading">登 陆 中...</span>
               <span v-else>登 陆</span>
             </el-button>
           </el-form-item>

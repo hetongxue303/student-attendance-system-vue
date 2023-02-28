@@ -55,6 +55,11 @@ const activeValue = computed((): string => {
   }
 }
 
+:deep(.el-menu-item.is-active) {
+  // 菜单选中背景色
+  background-color: rgb(38, 52, 69);
+}
+
 .el-scrollbar {
   height: calc(100% - 50px);
   background-color: #304156;

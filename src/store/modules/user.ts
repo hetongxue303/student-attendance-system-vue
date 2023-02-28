@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { UserStore } from '../../types/pinia'
-import { getToken, removeToken, removeTokenTime } from '../../utils/auth'
+import {
+  getToken,
+  removeToken,
+  removeTokenTime,
+  setToken,
+  setTokenTime
+} from '../../utils/auth'
 import { local, session } from '../../utils/storage'
 import { usePermissionStore } from './permission'
 import { filterMenu } from '../../filter/menu'
@@ -27,19 +33,20 @@ export const useUserStore = defineStore('user', {
   actions: {
     setUserInfo(data: any) {
       const permissionStore = usePermissionStore()
-      this.authorization = `bearer ${data.access_token}`
-      const { username, roles, menus, permissions, avatar, is_admin } =
-        data.user
-      if (roles && roles.length > 0) {
-        this.roles = roles
-        this.username = username
-        this.avatar = avatar
-        this.isAdmin = is_admin
+      const { access_token, expire_time, user } = data
+      setToken(`bearer ${access_token}`)
+      setTokenTime(new Date().getTime() + expire_time)
+      this.authorization = `bearer ${access_token}`
+      if (user.roles && user.roles.length > 0) {
+        this.roles = user.roles
+        this.username = user.username
+        this.avatar = user.avatar
+        this.isAdmin = user.is_admin
       } else {
         this.roles = []
       }
-      permissionStore.menus.push(...filterMenu(menus, 0))
-      permissionStore.permissions = permissions
+      permissionStore.menus.push(...filterMenu(user.menus, 0))
+      permissionStore.permissions = user.permissions
     },
     systemLogout() {
       removeToken()

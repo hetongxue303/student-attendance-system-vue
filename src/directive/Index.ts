@@ -5,10 +5,10 @@ const directives = { permission, role }
 
 export default {
   install(app: App) {
-    Object.keys(directives).forEach((directive: string) => {
+    Object.keys(directives).forEach((item) => {
       app.directive(
-        directive,
-        (directives as { [key: string]: ObjectDirective })[directive]
+        item,
+        (directives as { [key: string]: ObjectDirective })[item]
       )
     })
   }

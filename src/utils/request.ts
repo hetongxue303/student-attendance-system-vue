@@ -1,6 +1,7 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElNotification } from 'element-plus'
 import { getToken } from './auth'
+import NProgress from '../plugins/nProgress'
 
 axios.create({
   baseURL: import.meta.env.VITE_BASIC_HTTP,
@@ -14,33 +15,26 @@ axios.create({
 
 axios.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
+    NProgress.start()
     if (getToken() && config.headers) {
       config.headers.authorization = getToken()
     }
     return config
   },
-  (error: any) => {
-    ElNotification.error(error.message || '请求错误!')
+  (error: AxiosError) => {
+    ElNotification.error(error.message || '请求错误')
     return Promise.reject(error)
   }
 )
 
 axios.interceptors.response.use(
   (response: AxiosResponse) => {
+    NProgress.done()
     return response
   },
-  (error: any) => {
-    let { message } = error
-    if (message === 'Network Error') {
-      message = '连接异常'
-    } else if (message.includes('timeout')) {
-      message = '请求超时'
-    } else if (message === 'Request failed with status code 401') {
-      message = '凭证过期'
-    } else if (message === 'Request failed with status code 403') {
-      message = error.response.data.message || '没有权限'
-    }
-    ElNotification.error(message)
+  (error: AxiosError) => {
+    const { message } = error
+    if (message.includes('500')) ElNotification.error('服务器异常')
     return Promise.reject(error)
   }
 )

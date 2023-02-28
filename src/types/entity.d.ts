@@ -128,7 +128,7 @@ export interface Menu {
   menu_id?: number
   menu_name?: string
   menu_title?: string
-  menu_type?: number
+  menu_type?: number | string
   parent_id?: number
   path?: string
   component?: string
@@ -182,6 +182,10 @@ export interface MenuVo {
   children?: Array<MenuVo>
 }
 
+export interface MenuTreeDto extends Menu {
+  children?: MenuTreeDto[]
+}
+
 export interface RouterVo {
   name?: string
   path?: string
@@ -201,6 +205,10 @@ export interface QueryUser extends User, Page {}
 export interface QueryRole extends Role, Page {}
 
 export interface QueryMenu extends Menu, Page {}
+
+export interface QueryMenuTree {
+  menu_title?: string
+}
 
 export interface QueryAttendance extends Attendance, Page {
   active?: number

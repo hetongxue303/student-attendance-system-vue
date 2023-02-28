@@ -24,24 +24,13 @@ import { useRoute } from 'vue-router'
 import MenuItem from './components/MenuItem.vue'
 import { usePermissionStore } from '../../store/modules/permission'
 import { menus } from '../data/menus'
-import { MenuVo } from '../../types/entity'
 
 const route = useRoute()
 const permissionStore = usePermissionStore()
+const menus = computed(() => permissionStore.getMenuItem)
+const activeValue = computed((): string => route.path)
 
-// 静态
-// const menuList: Array<any> = menus
-// 动态
-const menus = computed((): Array<MenuVo> => {
-  return permissionStore.getMenus
-})
-defineProps({
-  isCollapse: { type: Boolean, required: true, default: false }
-})
-
-const activeValue = computed((): string => {
-  return route.path
-})
+withDefaults(defineProps<{ isCollapse: boolean }>(), { isCollapse: false })
 </script>
 
 <style scoped lang="scss">

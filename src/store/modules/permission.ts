@@ -1,26 +1,34 @@
 import { defineStore } from 'pinia'
 import { permissionStore } from '../../types/pinia'
+import router from '../../router'
 
 export const usePermissionStore = defineStore('permission', {
   state: (): permissionStore => {
     return {
-      menus: [
-        {
-          name: '首页',
-          icon: 'index',
-          path: '/dashboard'
-        }
-      ],
+      rawMenu: [],
+      menuItem: [],
       routers: [],
       permissions: []
     }
   },
   getters: {
-    getMenus: (state) => state.menus,
+    getRawMenu: (state) => state.rawMenu,
+    getMenuItem: (state) => state.menuItem,
     getRouters: (state) => state.routers,
     getPermissions: (state) => state.permissions
   },
-  actions: {},
+  actions: {
+    setRouter() {
+      this.routers.forEach((item) => {
+        if (!router.hasRoute(item.name as string)) router.addRoute('main', item)
+      })
+    },
+    clearRouter() {
+      this.routers.forEach((item) => {
+        if (item.name !== '/dashboard') router.removeRoute(item.name as string)
+      })
+    }
+  },
   persist: {
     key: 'PERMISSION',
     storage: localStorage

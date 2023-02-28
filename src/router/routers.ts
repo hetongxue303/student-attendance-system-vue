@@ -13,6 +13,7 @@ export const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
+    name: 'main',
     component: Layout,
     redirect: '/dashboard',
     meta: { cache: false },
@@ -47,6 +48,7 @@ export const routes: RouteRecordRaw[] = [
     ]
   },
 
+  /*动态菜单*/
   {
     path: '/educational',
     component: Layout,

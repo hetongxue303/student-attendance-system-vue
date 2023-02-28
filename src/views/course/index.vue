@@ -250,11 +250,7 @@ const getSelectUserList = (role: number) => {
   <div class="table-tool">
     <el-row :gutter="20" class="search-box">
       <el-col :span="3">
-        <el-input
-          v-model="query.course_name"
-          type="text"
-          placeholder="课程名称"
-        />
+        <el-input v-model="query.course_name" placeholder="课程名称" />
       </el-col>
       <el-button icon="RefreshLeft" type="warning" @click="resetSearch">
         重置

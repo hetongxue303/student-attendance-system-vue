@@ -1,12 +1,15 @@
 import { Menu, MenuVo, RouterVo } from './entity'
+import { MenuDto } from './element'
+import { RouteRecordRaw } from 'vue-router'
 
 export type appStore = {
   collapse: boolean
 }
 
 export type permissionStore = {
-  menus: Array<MenuVo>
-  routers: Array<RouterVo>
+  rawMenu: Menu[]
+  menuItem: MenuDto[]
+  routers: RouteRecordRaw[]
   permissions: string[]
 }
 

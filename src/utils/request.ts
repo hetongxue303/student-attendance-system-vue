@@ -1,7 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElNotification } from 'element-plus'
-import { getToken } from './auth'
+import { getToken, removeToken, removeTokenTime } from './auth'
 import NProgress from '../plugins/nProgress'
+import { useUserStore } from '../store/modules/user'
 
 axios.create({
   baseURL: import.meta.env.VITE_BASIC_HTTP,
@@ -34,7 +35,13 @@ axios.interceptors.response.use(
   },
   (error: AxiosError) => {
     const { message } = error
+    const userStore = useUserStore()
     if (message.includes('500')) ElNotification.error('服务器异常')
+    if (message.includes('401')) {
+      userStore.systemLogout()
+      window.location.replace('/login')
+      ElNotification.error('登陆过期')
+    }
     return Promise.reject(error)
   }
 )

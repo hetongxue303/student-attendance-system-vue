@@ -9,9 +9,9 @@ import {
 } from '../../utils/auth'
 import { local, session } from '../../utils/storage'
 import { usePermissionStore } from './permission'
-import { filterMenu } from '../../filter/menu'
 import { useTabStore } from './tab'
 import { useAppStore } from './app'
+import { filterMenu, filterRouter } from '../../filter/permission'
 
 export const useUserStore = defineStore('user', {
   state: (): UserStore => {
@@ -45,8 +45,10 @@ export const useUserStore = defineStore('user', {
       } else {
         this.roles = []
       }
-      permissionStore.menus.push(...filterMenu(user.menus, 0))
-      permissionStore.permissions = user.permissions
+      permissionStore.rawMenu = user.menus
+      permissionStore.menuItem = filterMenu(user.menus, 0)
+      permissionStore.routers = filterRouter(user.menus)
+      // permissionStore.setRouter()
     },
     systemLogout() {
       removeToken()

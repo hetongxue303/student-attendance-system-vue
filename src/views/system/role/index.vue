@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Pagination from '../../../components/Pagination/Index.vue'
-import { QueryRole, Role } from '../../../types/entity'
+import { Menu, QueryRole, Role } from '../../../types/entity'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { addRole, delRole, getRolePage, updateRole } from '../../../api/role'
 import { cloneDeep } from 'lodash'
@@ -146,13 +146,6 @@ const handleBatchDelete = async () => {
       return item.role_id as number
     })
     ElMessage.warning('待完善')
-    // const { data } = await delBatchRole(ids)
-    // if (data.code === 200) {
-    //   await getRoleListPage()
-    //   ElNotification.success('删除成功')
-    //   return
-    // }
-    // ElNotification.error('删除失败,请重试！')
   })
 }
 const handleExport = () => {
@@ -201,82 +194,69 @@ watch(
 onMounted(() => getRoleListPage())
 
 /*菜单分配相关*/
-import type Node from 'element-plus/es/components/tree/src/model/node'
-import { getMenuLazyTree, getOneMenuByRoleId } from '../../../api/menu'
+import {
+  getMenuTreeList,
+  getOneMenuByRoleId,
+  updateMenuPermission
+} from '../../../api/menu'
+import { filterMenuKey, filterMenuTree, Tree } from '../../../filter/menu'
+import { DURATION_TIME } from '../../../settings'
 
 const saveDisabled = ref<boolean>(false)
-const menuTreeRef = ref<InstanceType<typeof ElTree>>()
-const menuProps = {
-  label: 'name',
-  disable: 'disable',
-  isLeaf: 'leaf'
-}
-
-interface MenuLazyTree {
-  id: number
-  name: string
-  disable: boolean
-  leaf: boolean
-}
-
-const menuLoad = async (
-  node: Node,
-  resolve: (data: MenuLazyTree[]) => void
-) => {
-  if (node.level === 0) {
-    const { data } = await getMenuLazyTree(0)
-    return resolve(cloneDeep(data.data))
-  }
-  if (node.level > 0) {
-    setTimeout(async () => {
-      const { data } = await getMenuLazyTree(node.data.id)
-      return resolve(cloneDeep(data.data))
-    }, 500)
-  }
-  return resolve([])
-}
-
-const getCheckedKeys = (menus: MenuLazyTree[]): number[] => {
-  const menu_ids: number[] = []
-  menus.forEach(async (item) => {
-    menu_ids.push(item.id)
-    if (!item.leaf) {
-      const { data } = await getMenuLazyTree(item.id)
-      menu_ids.push(...getCheckedKeys(cloneDeep(data.data)))
-    }
-  })
-  console.log(menu_ids)
-  return menu_ids
+const menuTree = ref<Tree[]>([])
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const roleMenu = ref<Menu[]>([])
+const roleCheckedMenuKeys = ref<number[]>([])
+const roleId = ref<number | undefined>()
+const getMenuTree = () => {
+  getMenuTreeList().then(
+    ({ data }) =>
+      (menuTree.value = data.code === 200 ? filterMenuTree(data.data, 0) : [])
+  )
 }
 const handleSaveMenu = () => {
-  const menu_ids: number[] = getCheckedKeys(
-    menuTreeRef.value?.getCheckedNodes() as MenuLazyTree[]
-  )
-  console.log(menu_ids)
-  // menuTreeRef.value?.getCheckedNodes().forEach(async (item) => {
-  //   if (!item.leaf) {
-  //     const { data } = await getMenuLazyTree(item.id)
-  //     if (data.data) {
-  //       data.data.forEach((val: any) => {
-  //         menu_ids.value.push(val.id)
-  //       })
-  //     }
-  //   }
-  // })
+  if (roleId.value) {
+    updateMenuPermission({
+      role_id: roleId.value as number,
+      data: (treeRef.value?.getCheckedKeys() as number[]).concat(
+        treeRef.value?.getHalfCheckedKeys() as number[]
+      )
+    }).then(({ data }) => {
+      if (data.code === 200) {
+        ElNotification.success({ message: '更新成功', duration: DURATION_TIME })
+        roleMenu.value = []
+        roleCheckedMenuKeys.value = []
+        roleId.value = undefined
+        treeRef.value?.setCheckedKeys([], false)
+        getMenuTree()
+        return
+      }
+      ElNotification.error({
+        message: '更新失败，请重试!',
+        duration: DURATION_TIME
+      })
+    })
+  } else {
+    ElNotification.warning({ message: '请指定角色', duration: DURATION_TIME })
+  }
 }
-const handleRowClick = async ({ role_id }: Role) => {
-  const { data } = await getOneMenuByRoleId(role_id as number)
-  menuTreeRef.value?.setCheckedNodes([])
-  menuTreeRef.value?.setCheckedNodes(cloneDeep(data.data))
+const handleRowClick = ({ role_id }: Role) => {
+  roleMenu.value = []
+  roleCheckedMenuKeys.value = []
+  roleId.value = undefined
+  treeRef.value?.setCheckedKeys([], false)
+  getOneMenuByRoleId(role_id as number).then(({ data }) => {
+    roleMenu.value = cloneDeep(data.data)
+    roleCheckedMenuKeys.value = filterMenuKey(roleMenu.value)
+    roleId.value = role_id
+  })
 }
 watch(
-  () => menuTreeRef.value?.getCheckedNodes(),
-  (value) => {
-    if (value) {
-      saveDisabled.value = !(value.length > 0)
-    }
-  }
+  () => treeRef.value?.getCheckedKeys(false),
+  (value) => (saveDisabled.value = value?.length === 0),
+  { deep: true }
 )
+onMounted(() => getMenuTree())
 </script>
 
 <template>
@@ -416,14 +396,16 @@ watch(
           </div>
         </template>
         <el-tree
-          :props="menuProps"
-          :load="menuLoad"
+          ref="treeRef"
+          :data="menuTree"
           node-key="id"
-          :highlight-current="false"
-          empty-text="暂无数据"
-          ref="menuTreeRef"
-          lazy
+          :default-checked-keys="roleCheckedMenuKeys"
+          highlight-current
           show-checkbox
+          :props="{
+            label: 'label',
+            children: 'children'
+          }"
         />
       </el-card>
     </el-col>
